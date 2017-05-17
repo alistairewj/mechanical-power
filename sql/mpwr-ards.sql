@@ -15,7 +15,16 @@ select hadm_id, charttime, text, substring(text from position('bilateral' in low
 from noteevents
 where category = 'Radiology'
 and lower(description) like '%chest%'
-and lower(text) like '%bilateral%' limit 10;
+and lower(text) like '%bilateral opac%' limit 10;
+
+
+-- look for reports with bilateral
+select hadm_id, charttime, text, substring(text from position('bilaterally' in lower(text))-20 for 32) p
+from noteevents
+where category = 'Radiology'
+and lower(description) like '%chest%'
+and lower(text like '%air%infi%bilaterally%' limit 10;
+
 
 
 
