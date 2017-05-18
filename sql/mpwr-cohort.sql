@@ -1,4 +1,4 @@
-create table public.mvpower as
+create table mpwr_cohort as
 
 with t1 as
 (
@@ -36,22 +36,22 @@ INNER JOIN patients pat
 WHERE adm.has_chartevents_data = 1
 ORDER BY ie.subject_id, adm.admittime, ie.intime
 )
-select t1.subject_id, t1.hadm_id, t1.icustay_id, t1.gender, t1.los_hospital, t1.age, t1.hospstay_seq, t1.los_icu, t1.icustay_seq, v.ventnum, v.starttime, v.endtime, v.duration_hours
-from t1, public.ventdurations v
-where t1.hospstay_seq=1 and icustay_seq = 1 -- first hospital stay, first icu stay
-and v.ventnum =1 and t1.age >=16 -- first ventilation and age >= 16
-and v.duration_hours >= 48 -- mv duration >48h
-and v.icustay_id = t1.icustay_id
-and NOT EXISTS
- (with t2 as
- (select distinct c.icustay_id, c.charttime, c.value, rank()over (partition by c.icustay_id order by c.charttime) as sequence
-from mimiciii.chartevents c, mimiciii.icustays a
-where c.charttime between a.intime and a.intime +interval '3' day
-and itemid  in (687,688,690,691,692,224831,224829,224830,224864,225590,227130)
-and c.icustay_id = a.icustay_id
-)
-select t2.icustay_id
-from t2
-where t2.sequence = 1
-and t2.icustay_id =t1.icustay_id
-);
+select t1.subject_id, t1.hadm_id, t1.icustay_id
+  , t1.gender, t1.los_hospital, t1.age, t1.hospstay_seq
+  , t1.los_icu, t1.icustay_seq, v.ventnum
+  , v.starttime, v.endtime, v.duration_hours
+
+  -- exclusions
+  , case when t1.age < 16 then 1 else 0 end as exclusion_nonadult
+  , case when t1.hospstay_seq>1 or t1.icustay_seq>1 then 1 else 0 end as exclusion_readmission
+  , case when tr.icustay_id is not null then 1 else 0 end as exclusion_trach
+  , case when v.icustay_id is null then 1 else 0 end as exclusion_not_vent
+  
+from t1
+left join public.ventdurations v
+  on v.icustay_id = t1.icustay_id
+  and v.ventnum = 1 -- first ventilation and age >= 16
+  and v.duration_hours >= 48 -- mv duration >48h
+left join mpwr_trach tr
+  on t1.icustay_id = tr.icustay_id
+order by t1.icustay_id;
