@@ -9,77 +9,43 @@
 --        100 > pao2/fio2       - Severe
 -- (TODO: figure out the exact >= or > rules)
 
-
 -- look for reports with bilateral
-select hadm_id, charttime, text, substring(text from position('bilateral' in lower(text)) for 30) p
-from noteevents
-where category = 'Radiology'
-and lower(description) like '%chest%'
-and lower(text) like '%bilateral opac%' limit 10;
-
-
--- look for reports with bilateral
-select hadm_id, charttime, text, substring(text from position('bilaterally' in lower(text))-20 for 32) p
-from noteevents
-where category = 'Radiology'
-and lower(description) like '%chest%'
-and lower(text like '%air%infi%bilaterally%' limit 10;
-
-
-
-
--- group sentences containing bilateral
-with t1 as
+DROP TABLE IF EXISTS notes_bilateral_infiltrates CASCADE;
+CREATE TABLE notes_bilateral_infiltrates AS
+with notes as
 (
-select regexp_replace(regexp_replace(case when position('bilateral' in lower(text)) > 20 then
-    substring(text from position('bilateral' in lower(text))-20 for 50)
-    else substring(text from 1 for 50) end,'\n',' '),'\r','') as sent
+select hadm_id, charttime, text, regexp_replace(regexp_replace(text,'\n',' '),'\r', '') as text_fix
 from noteevents
 where category = 'Radiology'
-and lower(description) like '%chest%'
-and lower(text) like '%bilateral%'
+and description ilike '%chest%'
 )
-select sent, count(*) as numobs
-from t1
-group by sent
-order by numobs desc;
+select hadm_id, charttime, 1::smallint as bilateral_infiltrates
+--, substring(text from position('bilateral' in lower(text)) for 30) p
+from notes
+where text_fix ~ 'bilateral (\w)* ?(\w)* ?(opaci|infil|haziness)'
+OR text_fix ~* '\.?([\w ]*)^(no )(opaci|infil|hazy|haziness)([\w ]+)bilaterally'
+order by hadm_id, charttime;
 
--- group sentences containing pulmonary infilt
-with t1 as
-(
-select lower(regexp_replace(regexp_replace(case when position('pulmonary infiltrate' in lower(text)) > 20 then
-    substring(text from position('pulmonary infiltrate' in lower(text))-20 for 40)
-    else substring(text from 1 for 20) end,'\n',' '),'\r','')) as sent
-from noteevents
-where category = 'Radiology'
-and lower(description) like '%chest%'
-and lower(text) like '%pulmonary infiltrate%'
-)
-select sent, count(*) as numobs
-from t1
-group by sent
-order by numobs desc;
-
-
-
-
--- group sentences bilaterally
-with t1 as
-(
-select lower(regexp_replace(regexp_replace(case when position('bilaterally' in lower(text)) > 20 then
-    substring(text from position('bilaterally' in lower(text))-20 for 20+11)
-    else substring(text from 1 for 20+11) end,'\n',' '),'\r','')) as sent
-from noteevents
-where category = 'Radiology'
-and lower(description) like '%chest%'
-and lower(text) like '%bilaterally%'
-)
-select sent, count(*) as numobs
-from t1
-group by sent
-order by numobs desc;
-
-
+-- create ARDS TABLE
+DROP TABLE IF EXISTS ards CASCADE;
+CREATE TABLE ards AS
+select
+  ie.icustay_id
+  , case
+      when tr.trach = 0 -- must be acute
+       and bi.bilateral_infiltrates = 1 -- require bilateral infiltrates
+       and bo.bad_oxygenation = 1  -- low pao2/fio2
+      then 1
+    else 0 end as ards
+  -- staging
+  , case
+      when tr.trach = 0 -- must be acute
+       and bi.bilateral_infiltrates = 1 -- require bilateral infiltrates
+      then bo.ards_stage
+    else null end as ards_stage
+from icustays ie
+left join mpwr_trach tr
+  on ie.icustay_id = tr.icustay_id
 
 --
 -- ?bilateral interstitial pattern
