@@ -3,8 +3,8 @@
 -- Speeds up subsequent queries using the data
 
 -- This query extracts the duration of mechanical ventilation
-DROP TABLE IF EXISTS chartevents_vent cascade;
-CREATE TABLE chartevents_vent as
+DROP TABLE IF EXISTS mpwr_chartevents_vent cascade;
+CREATE TABLE mpwr_chartevents_vent as
 select
   icustay_id, charttime
   , itemid

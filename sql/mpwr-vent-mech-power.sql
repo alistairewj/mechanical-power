@@ -1,5 +1,5 @@
-DROP TABLE IF EXISTS vent_mech_power cascade;
-CREATE TABLE vent_mech_power as
+DROP TABLE IF EXISTS mpwr_mech_power cascade;
+CREATE TABLE mpwr_mech_power as
 
 with vs_1day as
 (

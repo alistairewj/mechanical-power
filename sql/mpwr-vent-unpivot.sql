@@ -2,8 +2,8 @@
 
 
 -- This query extracts the duration of mechanical ventilation
-DROP TABLE IF EXISTS ventsettings_ali cascade;
-CREATE TABLE ventsettings_ali as
+DROP TABLE IF EXISTS mpwr_vent_unpivot cascade;
+CREATE TABLE mpwr_vent_unpivot as
 select
   icustay_id, charttime
   -- case statement determining whether it is an instance of mech vent
@@ -108,5 +108,5 @@ select
     --   end
     --   )
     --   as SelfExtubated
-from chartevents_vent ce
+from mpwr_chartevents_vent ce
 group by icustay_id, charttime;
