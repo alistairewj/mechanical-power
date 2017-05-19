@@ -2,7 +2,7 @@ drop table if exists mpwr_vasopressors cascade;
 create table mpwr_vasopressors as
 SELECT
   ie.icustay_id
-  , min(vasopressordurations.starttime) as starttime
+  , min(vd.starttime) as starttime
 
 FROM icustays ie
 left join vasopressordurations vd
