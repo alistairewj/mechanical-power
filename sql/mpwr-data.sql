@@ -36,11 +36,13 @@ select
   -- comorbidities
   , comorb.copd
   , comorb.asthma
-
+  , eli.elixhauser_vanwalraven
   , case when vaso.icustay_id is not null then 1 else 0 end as vasopressorsfirstday
 
   , sa.sapsii, oa.oasis, so.sofa
   , rrt.rrt as rrtfirstday
+  , de.ventfirstday
+
 from mpwr_cohort co
 left join mpwr_demographics de
   on co.icustay_id = de.icustay_id
@@ -48,6 +50,8 @@ left join mpwr_comorbid comorb
   on co.hadm_id = comorb.hadm_id
 left join mpwr_vasopressors vaso
   on co.icustay_id = vaso.icustay_id
+left join elixhauser_ahrq_score eli
+  on co.hadm_id = eli.hadm_id
 left join sapsii sa
   on co.icustay_id = sa.icustay_id
 left join oasis oa
