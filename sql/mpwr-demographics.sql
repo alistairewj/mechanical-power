@@ -44,7 +44,41 @@ select co.icustay_id
   , a.admission_location as source_of_admission
   , a.insurance
   , a.marital_status
-  , a.ethnicity
+  , a.ethnicity_raw
+
+  -- ethnicity flags
+  , case
+  when a.ethnicity in
+  (
+      'WHITE' --  40996
+    , 'WHITE - RUSSIAN' --    164
+    , 'WHITE - OTHER EUROPEAN' --     81
+    , 'WHITE - BRAZILIAN' --     59
+    , 'WHITE - EASTERN EUROPEAN' --     25
+  ) then 'white'
+  when a.ethnicity in
+  (
+      'BLACK/AFRICAN AMERICAN' --   5440
+    , 'BLACK/CAPE VERDEAN' --    200
+    , 'BLACK/HAITIAN' --    101
+    , 'BLACK/AFRICAN' --     44
+    , 'CARIBBEAN ISLAND' --      9
+  ) then 'black'
+  when a.ethnicity in
+  (
+      'HISPANIC OR LATINO' --   1696
+    , 'HISPANIC/LATINO - PUERTO RICAN' --    232
+    , 'HISPANIC/LATINO - DOMINICAN' --     78
+    , 'HISPANIC/LATINO - GUATEMALAN' --     40
+    , 'HISPANIC/LATINO - CUBAN' --     24
+    , 'HISPANIC/LATINO - SALVADORAN' --     19
+    , 'HISPANIC/LATINO - CENTRAL AMERICAN (OTHER)' --     13
+    , 'HISPANIC/LATINO - MEXICAN' --     13
+    , 'HISPANIC/LATINO - COLOMBIAN' --      9
+    , 'HISPANIC/LATINO - HONDURAN' --      4
+  ) then 'hispanic'
+  else 'other' end as ethnicity
+  
   , se.first_service
 
   -- outcomes
@@ -65,7 +99,7 @@ select co.icustay_id
   , primary_dx.long_title
 
   -- ventilation time`
-  , case when vd.starttime < ie.intime + interval '24' hour then 1 else 0 end
+  , case when tvd.starttime < ie.intime + interval '24' hour then 1 else 0 end
       as ventfirstday
 
 from mpwr_cohort co
