@@ -38,8 +38,95 @@ select
   , comorb.asthma
   , eli.elixhauser_vanwalraven
   , case when vaso.icustay_id is not null then 1 else 0 end as vasopressorsfirstday
+  , ards.ards
+  , ards.ards_severity
 
+  -- scores
   , sa.sapsii, oa.oasis, so.sofa
+
+  -- vitals
+  , vi.HeartRate_Min_day1
+  , vi.HeartRate_Max_day1
+  , vi.HeartRate_Mean_day1
+  , vi.MeanBP_Min_day1
+  , vi.MeanBP_Max_day1
+  , vi.MeanBP_Mean_day1
+  , vi.TempC_Min_day1
+  , vi.TempC_Max_day1
+  , vi.TempC_Mean_day1
+  , vi.SpO2_Min_day1
+  , vi.SpO2_Max_day1
+  , vi.SpO2_Mean_day1
+  , vi.EtCO2_Min_day1
+  , vi.EtCO2_Max_day1
+  , vi.EtCO2_Mean_day1
+
+  , vi.HeartRate_Min_day2
+  , vi.HeartRate_Max_day2
+  , vi.HeartRate_Mean_day2
+  , vi.MeanBP_Min_day2
+  , vi.MeanBP_Max_day2
+  , vi.MeanBP_Mean_day2
+  , vi.TempC_Min_day2
+  , vi.TempC_Max_day2
+  , vi.TempC_Mean_day2
+  , vi.SpO2_Min_day2
+  , vi.SpO2_Max_day2
+  , vi.SpO2_Mean_day2
+  , vi.EtCO2_Min_day2
+  , vi.EtCO2_Max_day2
+  , vi.EtCO2_Mean_day2
+
+  -- labs
+  , la.pao2_min_day1
+  , la.pao2_max_day1
+  , la.paco2_min_day1
+  , la.paco2_max_day1
+  , la.ph_min_day1
+  , la.ph_max_day1
+  , la.lactate_min_day1
+  , la.lactate_max_day1
+
+  , la.pao2_min_day2
+  , la.pao2_max_day2
+  , la.paco2_min_day2
+  , la.paco2_max_day2
+  , la.ph_min_day2
+  , la.ph_max_day2
+  , la.lactate_min_day2
+  , la.lactate_max_day2
+
+  -- ventilator parameters
+  , mp.mechanical_power_min_day1
+  , mp.mechanical_power_max_day1
+  , mp.tidal_volume_min_day1
+  , mp.tidal_volume_max_day1
+  , mp.peep_min_day1
+  , mp.peep_max_day1
+  , mp.plateau_pressure_min_day1
+  , mp.plateau_pressure_max_day1
+  , mp.peak_insp_pressure_min_day1
+  , mp.peak_insp_pressure_max_day1
+  , mp.resp_rate_set_min_day1
+  , mp.resp_rate_set_max_day1
+  , mp.resp_rate_total_min_day1
+  , mp.resp_rate_total_max_day1
+
+  , mp.mechanical_power_min_day2
+  , mp.mechanical_power_max_day2
+  , mp.tidal_volume_min_day2
+  , mp.tidal_volume_max_day2
+  , mp.peep_min_day2
+  , mp.peep_max_day2
+  , mp.plateau_pressure_min_day2
+  , mp.plateau_pressure_max_day2
+  , mp.peak_insp_pressure_min_day2
+  , mp.peak_insp_pressure_max_day2
+  , mp.resp_rate_set_min_day2
+  , mp.resp_rate_set_max_day2
+  , mp.resp_rate_total_min_day2
+  , mp.resp_rate_total_max_day2
+
   , rrt.rrt as rrtfirstday
   , de.ventfirstday
 
@@ -52,6 +139,14 @@ left join mpwr_vasopressors vaso
   on co.icustay_id = vaso.icustay_id
 left join elixhauser_ahrq_score eli
   on co.hadm_id = eli.hadm_id
+left join mpwr_ards ards
+  on co.icustay_id = ards.icustay_id
+left join mpwr_vitals vi
+  on co.icustay_id = vi.icustay_id
+left join mpwr_labs la
+  on co.icustay_id = la.icustay_id
+left join mpwr_mech_power mp
+  on co.icustay_id = mp.icustay_id
 left join sapsii sa
   on co.icustay_id = sa.icustay_id
 left join oasis oa
