@@ -21,7 +21,10 @@ select
   -- , max(case when itemid in (224701) then valuenum else null end) as psv_level -- PSVlevel
 
   , max(case when itemid in (535, 224695) then valuenum else null end) as peak_insp_pressure
-  , max(case when itemid in (615, 224690) then valuenum else null end) as resp_rate_total
+
+  , max(case when itemid in (619, 224688) then valuenum else null end) as resp_rate_set
+  , max(case when itemid in (615, 618, 224690, 220210) then valuenum else null end) as resp_rate_total
+
   --
   -- , max(
   --   case

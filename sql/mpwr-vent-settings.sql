@@ -31,6 +31,13 @@ and itemid in
     , 223,667,668,669,670,671,672 -- TCPCV
     , 224701 -- PSVlevel
 
+    , 619 -- Respiratory Rate Set
+    , 224688 -- Respiratory Rate (Set)
+    , 615 --  Resp Rate (Total)
+    , 224690 -- Respiratory Rate (Total)
+    , 618 --  Respiratory Rate
+    , 220210 -- Respiratory Rate
+
     -- the below are settings used to indicate extubation
     , 640 -- extubated
 
