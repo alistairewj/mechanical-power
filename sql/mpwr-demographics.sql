@@ -24,7 +24,9 @@ with serv as
 (
   select icustay_id
     , sum(extract(epoch from endtime - starttime))/60.0/60.0/24.0 as ventduration_days
+    , min(starttime) as starttime
   from ventdurations
+  where ventnum = 1
   group by icustay_id
 )
 select co.icustay_id
@@ -61,6 +63,10 @@ select co.icustay_id
   , primary_dx.icd9_code
   , primary_dx.short_title
   , primary_dx.long_title
+
+  -- ventilation time`
+  , case when vd.starttime < ie.intime + interval '24' hour then 1 else 0 end
+      as ventfirstday
 
 from mpwr_cohort co
 inner join icustays ie
