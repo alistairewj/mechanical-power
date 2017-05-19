@@ -1,5 +1,5 @@
-create table mpwr_cohort as
-
+DROP TABLE IF EXISTS mpwr_cohort CASCADE;
+CREATE TABLE mpwr_cohort AS
 with t1 as
 (
 SELECT ie.subject_id, ie.hadm_id, ie.icustay_id
@@ -17,6 +17,7 @@ SELECT ie.subject_id, ie.hadm_id, ie.icustay_id
 , CASE
     WHEN DENSE_RANK() OVER (PARTITION BY adm.subject_id ORDER BY adm.admittime) = 1 THEN 'Y'
     ELSE 'N' END AS first_hosp_stay
+, adm.has_chartevents_data
 
 -- icu level factors
 , ie.intime, ie.outtime
@@ -33,10 +34,11 @@ INNER JOIN admissions adm
     ON ie.hadm_id = adm.hadm_id
 INNER JOIN patients pat
     ON ie.subject_id = pat.subject_id
-WHERE adm.has_chartevents_data = 1
 ORDER BY ie.subject_id, adm.admittime, ie.intime
 )
 select t1.subject_id, t1.hadm_id, t1.icustay_id
+  , t1.intime, t1.outtime
+
   , t1.gender, t1.los_hospital, t1.age, t1.hospstay_seq
   , t1.los_icu, t1.icustay_seq, v.ventnum
   , v.starttime, v.endtime, v.duration_hours
@@ -46,7 +48,8 @@ select t1.subject_id, t1.hadm_id, t1.icustay_id
   , case when t1.hospstay_seq>1 or t1.icustay_seq>1 then 1 else 0 end as exclusion_readmission
   , case when tr.icustay_id is not null then 1 else 0 end as exclusion_trach
   , case when v.icustay_id is null then 1 else 0 end as exclusion_not_vent
-  
+  , case when has_chartevents_data = 1 then 1 else 0 end as exclusion_bad_data
+
 from t1
 left join public.ventdurations v
   on v.icustay_id = t1.icustay_id
