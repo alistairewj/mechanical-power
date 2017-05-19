@@ -298,10 +298,10 @@ with l1 as
     ie.icustay_id
     , min(coalesce(FIO2, fio2_chartevents)) as fio2_min_day1
     , max(coalesce(FIO2, fio2_chartevents)) as fio2_max_day1
-    , min(vs.PaO2) as pao2_min_day1
-    , max(vs.PaO2) as pao2_max_day1
-    , min(vs.PaCO2) as paco2_min_day1
-    , max(vs.PaCO2) as paco2_max_day1
+    , min(vs.PO2) as pao2_min_day1
+    , max(vs.PO2) as pao2_max_day1
+    , min(vs.PCO2) as paco2_min_day1
+    , max(vs.PCO2) as paco2_max_day1
     , min(vs.ph) as ph_min_day1
     , max(vs.ph) as ph_max_day1
     , min(vs.lactate) as lactate_min_day1
@@ -318,10 +318,10 @@ with l1 as
     ie.icustay_id
     , min(coalesce(FIO2, fio2_chartevents)) as fio2_min_day2
     , max(coalesce(FIO2, fio2_chartevents)) as fio2_max_day2
-    , min(vs.PaO2) as pao2_min_day2
-    , max(vs.PaO2) as pao2_max_day2
-    , min(vs.PaCO2) as paco2_min_day2
-    , max(vs.PaCO2) as paco2_max_day2
+    , min(vs.PO2) as pao2_min_day2
+    , max(vs.PO2) as pao2_max_day2
+    , min(vs.PCO2) as paco2_min_day2
+    , max(vs.PCO2) as paco2_max_day2
     , min(vs.ph) as ph_min_day2
     , max(vs.ph) as ph_max_day2
     , min(vs.lactate) as lactate_min_day2
