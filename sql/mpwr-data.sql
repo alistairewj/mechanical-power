@@ -1,6 +1,6 @@
 -- final query for all the data
-
-
+DROP TABLE IF EXISTS mpwr_data CASCADE;
+CREATE TABLE mpwr_data AS
 select
   co.icustay_id
 
