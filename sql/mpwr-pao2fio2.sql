@@ -226,6 +226,9 @@ select icustay_id, charttime
     else null
   end as PaO2FiO2
 
+-- other
+, ph, lactate
+
 -- ventilation stuff that's sometimes input
 , INTUBATED, TIDALVOLUME, VENTILATIONRATE, VENTILATOR
 , PEEP, O2Flow
@@ -284,3 +287,77 @@ from stg1
 -- restrict it to *only* arterial samples
 where lastRowPeep = 1 -- only the row with the most recent fio2
 order by icustay_id, charttime;
+
+
+-- create a table with pH, lactate, and PaCO2
+DROP TABLE IF EXISTS mpwr_labs CASCADE;
+CREATE TABLE mpwr_labs AS
+with l1 as
+(
+  select
+    ie.icustay_id
+    , min(coalesce(FIO2, fio2_chartevents)) as fio2_min_day1
+    , max(coalesce(FIO2, fio2_chartevents)) as fio2_max_day1
+    , min(vs.PaO2) as pao2_min_day1
+    , max(vs.PaO2) as pao2_max_day1
+    , min(vs.PaCO2) as paco2_min_day1
+    , max(vs.PaCO2) as paco2_max_day1
+    , min(vs.ph) as ph_min_day1
+    , max(vs.ph) as ph_max_day1
+    , min(vs.lactate) as lactate_min_day1
+    , max(vs.lactate) as lactate_max_day1
+  from icustays ie
+  left join mpwr_pao2fio2 vs
+    on ie.icustay_id = vs.icustay_id
+    and vs.charttime between ie.intime + interval '1' day and ie.intime + interval '2' day
+  group by ie.icustay_id
+)
+, l2 as
+(
+  select
+    ie.icustay_id
+    , min(coalesce(FIO2, fio2_chartevents)) as fio2_min_day2
+    , max(coalesce(FIO2, fio2_chartevents)) as fio2_max_day2
+    , min(vs.PaO2) as pao2_min_day2
+    , max(vs.PaO2) as pao2_max_day2
+    , min(vs.PaCO2) as paco2_min_day2
+    , max(vs.PaCO2) as paco2_max_day2
+    , min(vs.ph) as ph_min_day2
+    , max(vs.ph) as ph_max_day2
+    , min(vs.lactate) as lactate_min_day2
+    , max(vs.lactate) as lactate_max_day2
+  from icustays ie
+  left join mpwr_pao2fio2 vs
+    on ie.icustay_id = vs.icustay_id
+    and vs.charttime between ie.intime + interval '1' day and ie.intime + interval '2' day
+  group by ie.icustay_id
+)
+select
+  ie.icustay_id
+  , fio2_min_day1
+  , fio2_max_day1
+  , pao2_min_day1
+  , pao2_max_day1
+  , paco2_min_day1
+  , paco2_max_day1
+  , ph_min_day1
+  , ph_max_day1
+  , lactate_min_day1
+  , lactate_max_day1
+
+  , fio2_min_day2
+  , fio2_max_day2
+  , pao2_min_day2
+  , pao2_max_day2
+  , paco2_min_day2
+  , paco2_max_day2
+  , ph_min_day2
+  , ph_max_day2
+  , lactate_min_day2
+  , lactate_max_day2
+from icustays ie
+left join l1
+  on ie.icustay_id = l1.icustay_id
+left join l2
+  on ie.icustay_id = l2.icustay_id
+order by ie.icustay_id;
