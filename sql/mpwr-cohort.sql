@@ -46,9 +46,9 @@ select t1.subject_id, t1.hadm_id, t1.icustay_id
   -- exclusions
   , case when t1.age < 16 then 1 else 0 end as exclusion_nonadult
   , case when t1.hospstay_seq>1 or t1.icustay_seq>1 then 1 else 0 end as exclusion_readmission
-  , case when tr.icustay_id is not null then 1 else 0 end as exclusion_trach
+  , case when tr.trach = 1 then 1 else 0 end as exclusion_trach
   , case when v.icustay_id is null then 1 else 0 end as exclusion_not_vent
-  , case when has_chartevents_data = 1 then 1 else 0 end as exclusion_bad_data
+  , case when has_chartevents_data = 0 then 1 else 0 end as exclusion_bad_data
 
 from t1
 left join public.ventdurations v
