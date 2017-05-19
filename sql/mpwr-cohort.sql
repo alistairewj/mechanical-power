@@ -68,3 +68,13 @@ order by t1.icustay_id;
 -- , sum(exclusion_not_vent) as exclusion_not_vent
 -- , sum(exclusion_bad_data) as exclusion_bad_data
 -- from mpwr_cohort;
+
+--
+-- select
+-- count(*) as total_num
+-- , sum(exclusion_readmission) as exclusion_readmission
+-- , sum(exclusion_trach) as exclusion_trach
+-- , sum(exclusion_not_vent) as exclusion_not_vent
+-- , sum(exclusion_bad_data) as exclusion_bad_data
+-- from mpwr_cohort
+-- where exclusion_nonadult = 0;
