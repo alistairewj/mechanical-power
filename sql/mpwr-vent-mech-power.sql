@@ -4,7 +4,7 @@ CREATE TABLE mpwr_mech_power as
 with vs_day1 as
 (
   select
-  ie.subject_id, ie.hadm_id, ie.icustay_id
+  co.icustay_id
 
 
   , min(0.098*resp_rate_total*(tidal_volume/1000)* ( peak_insp_pressure - (plateau_pressure-peep)/2 )) as mechanical_power_min
@@ -25,16 +25,16 @@ with vs_day1 as
   , min(fio2) as fio2_min
   , max(fio2) as fio2_max
 
-from icustays ie
+from mpwr_cohort co
 left join mpwr_vent_unpivot vs
-  on ie.icustay_id = vs.icustay_id
-  and vs.charttime between ie.intime and ie.intime + interval '1' day
-group by ie.subject_id, ie.hadm_id, ie.icustay_id
+  on co.icustay_id = vs.icustay_id
+  and vs.charttime between co.starttime_first_vent and co.starttime_first_vent + interval '1' day
+group by co.icustay_id
 )
 , vs_day2 as
 (
 select
-  ie.subject_id, ie.hadm_id, ie.icustay_id
+  co.icustay_id
 
   , min(0.098*resp_rate_total*(tidal_volume/1000)* ( peak_insp_pressure - (plateau_pressure-peep)/2 )) as mechanical_power_min
   , max(0.098*resp_rate_total*(tidal_volume/1000)* ( peak_insp_pressure - (plateau_pressure-peep)/2 )) as mechanical_power_max
@@ -53,24 +53,24 @@ select
   , min(fio2) as fio2_min
   , max(fio2) as fio2_max
 
-from icustays ie
+from mpwr_cohort co
 left join mpwr_vent_unpivot vs
-  on ie.icustay_id = vs.icustay_id
-  and vs.charttime between ie.intime + interval '1' day and ie.intime + interval '2' day
-group by ie.subject_id, ie.hadm_id, ie.icustay_id
+  on co.icustay_id = vs.icustay_id
+  and vs.charttime between co.starttime_first_vent + interval '1' day and co.starttime_first_vent + interval '2' day
+group by co.icustay_id
 )
 , vs_mode as
 (
   select
     vs.icustay_id, vs.value as ventmode
-    , count(case when vs.charttime <= ie.intime + interval '1' day then vs.value else null end) as NumObsDay1
-    , count(case when vs.charttime > ie.intime + interval '1' day then vs.value else null end) as NumObsDay2
-  from icustays ie
+    , count(case when vs.charttime <= co.starttime_first_vent + interval '1' day then vs.value else null end) as NumObsDay1
+    , count(case when vs.charttime > co.starttime_first_vent + interval '1' day then vs.value else null end) as NumObsDay2
+  from mpwr_cohort co
   inner join mpwr_chartevents_vent vs
-    on ie.icustay_id = vs.icustay_id
+    on co.icustay_id = vs.icustay_id
   where vs.value is not null and vs.value != 'Other/Remarks'
-  and vs.charttime <= ie.intime + interval '2' day
-  and vs.charttime >= ie.intime - interval '1' day
+  and vs.charttime <= co.starttime_first_vent + interval '2' day
+  and vs.charttime >= co.starttime_first_vent - interval '1' day
   group by vs.icustay_id, vs.value
 )
 , vs_mode_max as
@@ -84,7 +84,7 @@ group by ie.subject_id, ie.hadm_id, ie.icustay_id
   from vs_mode
 )
 select
-  ie.subject_id, ie.hadm_id, ie.icustay_id
+  ie.icustay_id
 
   , vs_day1.mechanical_power_min as mechanical_power_min_day1
   , vs_day1.mechanical_power_max as mechanical_power_max_day1
@@ -124,7 +124,7 @@ select
   -- ventilator modes
   , case when vs1.numobsday1 > 0 then vs1.ventmode else null end as ventmode_day1
   , case when vs2.numobsday2 > 0 then vs2.ventmode else null end as ventmode_day2
-from icustays ie
+from mpwr_cohort ie
 left join vs_day2
   on ie.icustay_id = vs_day2.icustay_id
 left join vs_day1
