@@ -24,7 +24,8 @@ select
   , de.hospital_expire_flag
   , de.thirtyday_expire_flag
   , de.oneyear_expire_flag
-  , de.ventduration_days
+  , de.duration_first_vent_days
+  , de.duration_vent_total_days
 
   , de.icu_los_days
   , de.hosp_los_days
