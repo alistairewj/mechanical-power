@@ -38,7 +38,7 @@ select
   , comorb.copd
   , comorb.asthma
   , eli.elixhauser_vanwalraven
-  , case when vaso.icustay_id is not null then 1 else 0 end as vasopressorsfirstday
+  , case when vaso.starttime is not null then 1 else 0 end as vasopressorsfirstday
   , ards.ards
   , ards.ards_severity
 
