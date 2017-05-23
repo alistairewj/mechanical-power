@@ -118,8 +118,8 @@ select
   , vs_day2.resp_rate_set_max as resp_rate_set_max_day2
   , vs_day2.resp_rate_total_min as resp_rate_total_min_day2
   , vs_day2.resp_rate_total_max as resp_rate_total_max_day2
-  , vs_day2.fio2_min as fio2_min_day1
-  , vs_day2.fio2_max as fio2_max_day1
+  , vs_day2.fio2_min as fio2_min_day2
+  , vs_day2.fio2_max as fio2_max_day2
 
   -- ventilator modes
   , case when vs1.numobsday1 > 0 then vs1.ventmode else null end as ventmode_day1
