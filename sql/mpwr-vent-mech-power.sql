@@ -63,14 +63,25 @@ group by ie.subject_id, ie.hadm_id, ie.icustay_id
 (
   select
     vs.icustay_id, vs.value as ventmode
-    , ROW_NUMBER() over (partition by ie.icustay_id order by vs.charttime) rn_first
-    , ROW_NUMBER() over (partition by ie.icustay_id order by vs.charttime desc) rn_last
+    , count(case when vs.charttime <= ie.intime + interval '1' day then vs.value else null end) as NumObsDay1
+    , count(case when vs.charttime > ie.intime + interval '1' day then vs.value else null end) as NumObsDay2
   from icustays ie
   inner join mpwr_chartevents_vent vs
     on ie.icustay_id = vs.icustay_id
   where vs.value is not null and vs.value != 'Other/Remarks'
   and vs.charttime <= ie.intime + interval '2' day
   and vs.charttime >= ie.intime - interval '1' day
+  group by vs.icustay_id, vs.value
+)
+, vs_mode_max as
+(
+  select icustay_id
+  , ventmode
+  , numobsday1
+  , ROW_NUMBER() over (partition by icustay_id order by numobsday1) as rn1
+  , numobsday2
+  , ROW_NUMBER() over (partition by icustay_id order by numobsday2) as rn2
+  from vs_mode
 )
 select
   ie.subject_id, ie.hadm_id, ie.icustay_id
@@ -111,17 +122,17 @@ select
   , vs_day2.fio2_max as fio2_max_day1
 
   -- ventilator modes
-  , vs1.ventmode as ventmode_first
-  , vs2.ventmode as ventmode_last
+  , case when vs1.numobsday1 > 0 then vs1.ventmode else null end as ventmode_day1
+  , case when vs2.numobsday2 > 0 then vs2.ventmode else null end as ventmode_day2
 from icustays ie
 left join vs_day2
   on ie.icustay_id = vs_day2.icustay_id
 left join vs_day1
   on ie.icustay_id = vs_day1.icustay_id
-left join vs_mode vs1
+left join vs_mode_max vs1
   on ie.icustay_id = vs1.icustay_id
-  and vs1.rn_first = 1
-left join vs_mode vs2
+  and vs1.rn1 = 1
+left join vs_mode_max vs2
   on ie.icustay_id = vs2.icustay_id
-  and vs2.rn_last = 1
+  and vs2.rn2 = 1
 order by ie.icustay_id;
