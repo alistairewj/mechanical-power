@@ -12,14 +12,14 @@ DROP TABLE IF EXISTS mpwr_ards CASCADE;
 CREATE TABLE mpwr_ards as
 with bl as
 (
-  select ie.icustay_id
+  select co.icustay_id
     , max(case when nbl.bilateral_infiltrates is null then 0 else nbl.bilateral_infiltrates end) as bilateral_infiltrates
-  from icustays ie
+  from mpwr_cohort co
   left join notes_bilateral_infiltrates nbl
-    on ie.hadm_id = nbl.hadm_id
-    and nbl.charttime >= ie.intime - interval '1' day
-    and nbl.charttime <= ie.intime + interval '1' day
-  group by ie.icustay_id
+    on co.hadm_id = nbl.hadm_id
+    and nbl.charttime >= co.intime - interval '1' day
+    and nbl.charttime <= co.intime + interval '1' day
+  group by co.icustay_id
 )
 , ards_stg0 as
 (
@@ -28,7 +28,7 @@ with bl as
         when pf.pao2fio2 is null then null
         when pf.peep is null then null
         -- non-acute is not ARDS
-        when tr.trach = 0 then 0
+        when tr.trach = 1 then 0
         -- no bilateral infiltrates is not ARDS
         when bl.bilateral_infiltrates = 0 then 0
         when pf.peep >= 5 and pf.pao2fio2 > 300 then 0
