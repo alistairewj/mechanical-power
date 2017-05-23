@@ -26,7 +26,8 @@ select
   , de.oneyear_expire_flag
   , de.duration_first_vent_days
   , de.duration_vent_total_days
-
+  , de.ventilator_free_days
+  
   , de.icu_los_days
   , de.hosp_los_days
 
