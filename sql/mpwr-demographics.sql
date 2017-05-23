@@ -92,10 +92,10 @@ select co.icustay_id
   , tvd.duration_vent_total_days
 
   -- ventilator free days
-  , case when a.deathttime < (starttime_first_vent + interval '28' day) then 0
+  , case when a.deathtime < (starttime_first_vent + interval '28' day) then 0
          when pt.dod < (starttime_first_vent + interval '28' day) then 0
-         when tvd.duration_first_vent_days > 28 then 0
-        else 28-tvd.duration_first_vent_days end
+         when co.duration_first_vent_days > 28 then 0
+        else 28-co.duration_first_vent_days end
       as ventilator_free_days
 
   , extract(epoch from ie.outtime - ie.intime)/60.0/60.0/24.0 as icu_los_days
