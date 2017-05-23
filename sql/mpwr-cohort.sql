@@ -41,16 +41,22 @@ select t1.subject_id, t1.hadm_id, t1.icustay_id
 
   , t1.gender, t1.los_hospital, t1.age, t1.hospstay_seq
   , t1.los_icu, t1.icustay_seq, v.ventnum
-  , v.starttime, v.endtime, v.duration_hours
+  , vent.starttime as starttime_first_vent
+  , vent.endtime as endtime_first_vent
+  , vent.duration_hours/24.0 as duration_first_vent_days
 
   -- exclusions
   , case when t1.age < 16 then 1 else 0 end as exclusion_nonadult
   , case when t1.hospstay_seq>1 or t1.icustay_seq>1 then 1 else 0 end as exclusion_readmission
   , case when tr.trach = 1 then 1 else 0 end as exclusion_trach
-  , case when v.icustay_id is null then 1 else 0 end as exclusion_not_vent
+  , case when vent.icustay_id is null then 1 else 0 end as exclusion_not_vent
+  , case when v.icustay_id is null then 1 else 0 end as exclusion_not_vent_48hr
   , case when has_chartevents_data = 0 then 1 else 0 end as exclusion_bad_data
 
 from t1
+left join public.ventdurations vent
+  on vent.icustay_id = t1.icustay_id
+  and vent.ventnum = 1 -- first ventilation and age >= 16
 left join public.ventdurations v
   on v.icustay_id = t1.icustay_id
   and v.ventnum = 1 -- first ventilation and age >= 16
