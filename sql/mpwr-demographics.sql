@@ -23,10 +23,9 @@ with serv as
 , totalventdur as
 (
   select icustay_id
-    , sum(extract(epoch from endtime - starttime))/60.0/60.0/24.0 as ventduration_days
+    , sum(extract(epoch from endtime - starttime))/60.0/60.0/24.0 as duration_vent_total_days
     , min(starttime) as starttime
   from ventdurations
-  where ventnum = 1
   group by icustay_id
 )
 select co.icustay_id
@@ -44,7 +43,7 @@ select co.icustay_id
   , a.admission_location as source_of_admission
   , a.insurance
   , a.marital_status
-  , a.ethnicity_raw
+  , a.ethnicity as ethnicity_raw
 
   -- ethnicity flags
   , case
@@ -78,7 +77,7 @@ select co.icustay_id
     , 'HISPANIC/LATINO - HONDURAN' --      4
   ) then 'hispanic'
   else 'other' end as ethnicity
-  
+
   , se.first_service
 
   -- outcomes
@@ -89,7 +88,8 @@ select co.icustay_id
   , case
       when pt.dod <= a.admittime + interval '1' year then 1
     else 0 end as oneyear_expire_flag
-  , tvd.ventduration_days
+  , co.duration_first_vent_days
+  , tvd.duration_vent_total_days
 
   , extract(epoch from ie.outtime - ie.intime)/60.0/60.0/24.0 as icu_los_days
   , extract(epoch from a.dischtime - a.admittime)/60.0/60.0/24.0 as hosp_los_days
