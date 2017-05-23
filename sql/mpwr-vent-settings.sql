@@ -8,7 +8,9 @@ CREATE TABLE mpwr_chartevents_vent as
 select
   icustay_id, charttime
   , itemid
-  , value, valuenum, valueuom
+  , value
+  , valuenum
+  , valueuom
   , storetime
 from chartevents ce
 where ce.value is not null
@@ -50,6 +52,13 @@ and itemid in
     , 226732 -- O2 Delivery Device(s)
     , 223834 -- O2 Flow
 
+    -- fio2
+    , 3420 -- FiO2
+    , 190 -- FiO2 set
+    , 223835 -- Inspired O2 Fraction (FiO2)
+    , 3422 -- FiO2 [measured]
+    , 727
+  
     -- used in both oxygen + vent calculation
     , 467 -- O2 Delivery Device
 );
