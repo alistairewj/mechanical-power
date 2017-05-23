@@ -13,12 +13,12 @@ CREATE TABLE mpwr_ards as
 with bl as
 (
   select co.icustay_id
-    , max(case when nbl.bilateral_infiltrates is null then 0 else nbl.bilateral_infiltrates end) as bilateral_infiltrates
+    , max(coalesce(nbl.bilateral_infiltrates,0)) as bilateral_infiltrates
   from mpwr_cohort co
   left join notes_bilateral_infiltrates nbl
     on co.hadm_id = nbl.hadm_id
-    and nbl.charttime >= co.intime - interval '1' day
-    and nbl.charttime <= co.intime + interval '1' day
+    and nbl.charttime >= co.starttime_first_vent - interval '1' day
+    and nbl.charttime <= co.starttime_first_vent + interval '2' day
   group by co.icustay_id
 )
 , ards_stg0 as
@@ -53,6 +53,7 @@ with bl as
     , pao2fio2, peep
     , ROW_NUMBER() over (PARTITION BY icustay_id ORDER BY ards_severity desc, pao2fio2, charttime) as rn
   from ards_stg0
+  where ards_severity is not null
 )
 select ie.icustay_id
   , ar.charttime
