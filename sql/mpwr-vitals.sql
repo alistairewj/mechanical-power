@@ -3,7 +3,7 @@ CREATE TABLE mpwr_vitals as
 
 with pvt as
 (
-  select ie.subject_id, ie.hadm_id, ie.icustay_id
+  select co.icustay_id
   , case
     when itemid in (211,220045) and valuenum > 0 and valuenum < 300 then 'HR' -- HeartRate
     when itemid in (456,52,6702,443,220052,220181,225312) and valuenum > 0 and valuenum < 300 then 'MeanBP' -- MeanBP
@@ -20,12 +20,12 @@ with pvt as
   , case when itemid in (223761,678) then (valuenum-32)/1.8 else valuenum end as valuenum
 
   -- used to split data into day 1 and day 2
-  , case when ce.charttime < ie.intime + interval '1' day then 1 else 0 end as firstday
+  , case when ce.charttime < co.starttime_first_vent + interval '1' day then 1 else 0 end as firstday
 
-  from icustays ie
+  from mpwr_cohort co
   left join chartevents ce
-    on ie.icustay_id = ce.icustay_id
-    and ce.charttime between ie.intime and ie.intime + interval '2' day
+    on co.icustay_id = ce.icustay_id
+    and ce.charttime between co.starttime_first_vent and co.starttime_first_vent + interval '2' day
     -- exclude rows marked as error
     and ce.error IS DISTINCT FROM 1
     and ce.itemid in
@@ -105,7 +105,7 @@ with pvt as
   group by pvt.icustay_id
 )
 select
-  ie.icustay_id
+    co.icustay_id
   , vd1.HeartRate_Min as HeartRate_Min_day1
   , vd1.HeartRate_Max as HeartRate_Max_day1
   , vd1.HeartRate_Mean as HeartRate_Mean_day1
@@ -137,9 +137,9 @@ select
   , vd2.EtCO2_Min as EtCO2_Min_day2
   , vd2.EtCO2_Max as EtCO2_Max_day2
   , vd2.EtCO2_Mean as EtCO2_Mean_day2
-from icustays ie
+from mpwr_cohort co
 left join vd1
-  on ie.icustay_id = vd1.icustay_id
+  on co.icustay_id = vd1.icustay_id
 left join vd2
-  on ie.icustay_id = vd2.icustay_id
+  on co.icustay_id = vd2.icustay_id
 order by ie.icustay_id;
