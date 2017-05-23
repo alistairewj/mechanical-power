@@ -22,6 +22,8 @@ with vs_day1 as
   , max(resp_rate_set) as resp_rate_set_max
   , min(resp_rate_total) as resp_rate_total_min
   , max(resp_rate_total) as resp_rate_total_max
+  , min(fio2) as fio2_min
+  , max(fio2) as fio2_max
 
 from icustays ie
 left join mpwr_vent_unpivot vs
@@ -48,6 +50,8 @@ select
   , max(resp_rate_set) as resp_rate_set_max
   , min(resp_rate_total) as resp_rate_total_min
   , max(resp_rate_total) as resp_rate_total_max
+  , min(fio2) as fio2_min
+  , max(fio2) as fio2_max
 
 from icustays ie
 left join mpwr_vent_unpivot vs
@@ -85,6 +89,8 @@ select
   , vs_day1.resp_rate_set_max as resp_rate_set_max_day1
   , vs_day1.resp_rate_total_min as resp_rate_total_min_day1
   , vs_day1.resp_rate_total_max as resp_rate_total_max_day1
+  , vs_day1.fio2_min as fio2_min_day1
+  , vs_day1.fio2_max as fio2_max_day1
 
 
   , vs_day2.mechanical_power_min as mechanical_power_min_day2
@@ -101,6 +107,8 @@ select
   , vs_day2.resp_rate_set_max as resp_rate_set_max_day2
   , vs_day2.resp_rate_total_min as resp_rate_total_min_day2
   , vs_day2.resp_rate_total_max as resp_rate_total_max_day2
+  , vs_day2.fio2_min as fio2_min_day1
+  , vs_day2.fio2_max as fio2_max_day1
 
   -- ventilator modes
   , vs1.ventmode as ventmode_first
