@@ -58,6 +58,9 @@ select
   , vi.SpO2_Min_day1
   , vi.SpO2_Max_day1
   , vi.SpO2_Mean_day1
+  , vi.RASS_Min_day1
+  , vi.RASS_Max_day1
+  , vi.RASS_Mean_day1
   , vi.EtCO2_Min_day1
   , vi.EtCO2_Max_day1
   , vi.EtCO2_Mean_day1
@@ -74,6 +77,9 @@ select
   , vi.SpO2_Min_day2
   , vi.SpO2_Max_day2
   , vi.SpO2_Mean_day2
+  , vi.RASS_Min_day2
+  , vi.RASS_Max_day2
+  , vi.RASS_Mean_day2
   , vi.EtCO2_Min_day2
   , vi.EtCO2_Max_day2
   , vi.EtCO2_Mean_day2
