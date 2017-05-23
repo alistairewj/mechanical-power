@@ -10,14 +10,26 @@ with pvt as
     when itemid in (223761,678) and valuenum > 70 and valuenum < 120  then 'Temp' -- TempF, converted to degC in valuenum call
     when itemid in (223762,676) and valuenum > 10 and valuenum < 50  then 'Temp' -- TempC
     when itemid in (646,220277) and valuenum > 0 and valuenum <= 100 then 'SpO2' -- SpO2
-    -- TODO: RASS // RAMSAY
-    -- 228096,628
-    -- EtCO2
+    when itemid in (1337, 223753) and value is not null then 'RASS'
     when itemid in (1817, 228640) and valuenum > 0 then 'EtCO2' -- end tidal co2
   else null end as vital
 
-  -- convert F to C
-  , case when itemid in (223761,678) then (valuenum-32)/1.8 else valuenum end as valuenum
+  , case
+      -- convert F to C
+      when itemid in (223761,678) then (valuenum-32)/1.8
+      -- map rass to numbers
+      when itemid = 1337 and value is not null then
+        case when value = 'Agitated' then 5
+             when value = 'Calm/Cooperative' then 4
+             when value = 'Danger Agitation' then 7
+             when value = 'Sedated' then 3
+             when value = 'Unarousable' then 1
+             when value = 'Very Agitated' then 6
+             when value = 'Very Sedated'  then 2
+          else null
+        end
+    else valuenum end
+  as valuenum
 
   -- used to split data into day 1 and day 2
   , case when ce.charttime < co.starttime_first_vent + interval '1' day then 1 else 0 end as firstday
@@ -49,6 +61,9 @@ with pvt as
     -- end tidal co2 (etco2)
     1817, 228640,
 
+    -- RASS (richmond agitation sedation scale, though mislabeled as riker)
+    1337, 223753,
+
     -- TEMPERATURE
     223762, -- "Temperature Celsius"
     676,	-- "Temperature C"
@@ -73,6 +88,9 @@ with pvt as
   , min(case when vital = 'SpO2' then valuenum else null end) as SpO2_Min
   , max(case when vital = 'SpO2' then valuenum else null end) as SpO2_Max
   , avg(case when vital = 'SpO2' then valuenum else null end) as SpO2_Mean
+  , min(case when vital = 'RASS' then valuenum else null end) as RASS_Min
+  , max(case when vital = 'RASS' then valuenum else null end) as RASS_Max
+  , avg(case when vital = 'RASS' then valuenum else null end) as RASS_Mean
   , min(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Min
   , max(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Max
   , avg(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Mean
@@ -97,6 +115,9 @@ with pvt as
   , min(case when vital = 'SpO2' then valuenum else null end) as SpO2_Min
   , max(case when vital = 'SpO2' then valuenum else null end) as SpO2_Max
   , avg(case when vital = 'SpO2' then valuenum else null end) as SpO2_Mean
+  , min(case when vital = 'RASS' then valuenum else null end) as RASS_Min
+  , max(case when vital = 'RASS' then valuenum else null end) as RASS_Max
+  , avg(case when vital = 'RASS' then valuenum else null end) as RASS_Mean
   , min(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Min
   , max(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Max
   , avg(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Mean
@@ -118,6 +139,9 @@ select
   , vd1.SpO2_Min as SpO2_Min_day1
   , vd1.SpO2_Max as SpO2_Max_day1
   , vd1.SpO2_Mean as SpO2_Mean_day1
+  , vd1.RASS_Min as RASS_Min_day1
+  , vd1.RASS_Max as RASS_Max_day1
+  , vd1.RASS_Mean as RASS_Mean_day1
   , vd1.EtCO2_Min as EtCO2_Min_day1
   , vd1.EtCO2_Max as EtCO2_Max_day1
   , vd1.EtCO2_Mean as EtCO2_Mean_day1
@@ -134,6 +158,9 @@ select
   , vd2.SpO2_Min as SpO2_Min_day2
   , vd2.SpO2_Max as SpO2_Max_day2
   , vd2.SpO2_Mean as SpO2_Mean_day2
+  , vd2.RASS_Min as RASS_Min_day2
+  , vd2.RASS_Max as RASS_Max_day2
+  , vd2.RASS_Mean as RASS_Mean_day2
   , vd2.EtCO2_Min as EtCO2_Min_day2
   , vd2.EtCO2_Max as EtCO2_Max_day2
   , vd2.EtCO2_Mean as EtCO2_Mean_day2
