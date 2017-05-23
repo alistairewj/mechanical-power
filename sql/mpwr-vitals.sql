@@ -169,4 +169,4 @@ left join vd1
   on co.icustay_id = vd1.icustay_id
 left join vd2
   on co.icustay_id = vd2.icustay_id
-order by ie.icustay_id;
+order by co.icustay_id;
