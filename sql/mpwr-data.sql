@@ -166,5 +166,5 @@ left join rrtfirstday rrt
 where co.exclusion_nonadult = 0
 and co.exclusion_readmission = 0
 and co.exclusion_trach = 0
-and co.exclusion_not_vent = 0
+and co.exclusion_not_vent_48hr = 0
 and co.exclusion_bad_data = 0;
