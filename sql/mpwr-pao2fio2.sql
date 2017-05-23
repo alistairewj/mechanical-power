@@ -3,7 +3,7 @@ DROP TABLE IF EXISTS mpwr_oxy_params CASCADE;
 create table mpwr_oxy_params as
 with pvt as
 ( -- begin query that extracts the data
-  select ie.subject_id, ie.hadm_id, ie.icustay_id
+  select co.icustay_id
   -- here we assign labels to ITEMIDs
   -- this also fuses together multiple ITEMIDs containing the same data
       , case
@@ -52,10 +52,10 @@ with pvt as
         else valuenum
         end as valuenum
 
-    from icustays ie
+    from mpwr_cohort co
     left join labevents le
-      on le.subject_id = ie.subject_id
-      and le.charttime between (ie.intime - interval '1' day) and (ie.intime + interval '2' day)
+      on le.subject_id = co.subject_id
+      and le.charttime between co.starttime_first_vent and co.starttime_first_vent + interval '2' day
       and le.ITEMID in
       -- blood gases
       (
@@ -296,7 +296,7 @@ CREATE TABLE mpwr_labs AS
 with l1 as
 (
   select
-    ie.icustay_id
+    co.icustay_id
     , min(coalesce(FIO2, fio2_chartevents)) as fio2_min_day1
     , max(coalesce(FIO2, fio2_chartevents)) as fio2_max_day1
     , min(vs.PO2) as pao2_min_day1
@@ -307,16 +307,16 @@ with l1 as
     , max(vs.ph) as ph_max_day1
     , min(vs.lactate) as lactate_min_day1
     , max(vs.lactate) as lactate_max_day1
-  from icustays ie
+  from mpwr_cohort co
   left join mpwr_pao2fio2 vs
-    on ie.icustay_id = vs.icustay_id
-    and vs.charttime between ie.intime + interval '1' day and ie.intime + interval '2' day
-  group by ie.icustay_id
+    on co.icustay_id = vs.icustay_id
+    and vs.charttime between co.starttime_first_vent and co.starttime_first_vent + interval '1' day
+  group by co.icustay_id
 )
 , l2 as
 (
   select
-    ie.icustay_id
+    co.icustay_id
     , min(coalesce(FIO2, fio2_chartevents)) as fio2_min_day2
     , max(coalesce(FIO2, fio2_chartevents)) as fio2_max_day2
     , min(vs.PO2) as pao2_min_day2
@@ -327,14 +327,14 @@ with l1 as
     , max(vs.ph) as ph_max_day2
     , min(vs.lactate) as lactate_min_day2
     , max(vs.lactate) as lactate_max_day2
-  from icustays ie
+  from mpwr_cohort co
   left join mpwr_pao2fio2 vs
-    on ie.icustay_id = vs.icustay_id
-    and vs.charttime between ie.intime + interval '1' day and ie.intime + interval '2' day
-  group by ie.icustay_id
+    on co.icustay_id = vs.icustay_id
+    and vs.charttime between co.starttime_first_vent + interval '1' day and co.starttime_first_vent + interval '2' day
+  group by co.icustay_id
 )
 select
-  ie.icustay_id
+  co.icustay_id
   , fio2_min_day1
   , fio2_max_day1
   , pao2_min_day1
@@ -356,9 +356,9 @@ select
   , ph_max_day2
   , lactate_min_day2
   , lactate_max_day2
-from icustays ie
+from mpwr_cohort co
 left join l1
-  on ie.icustay_id = l1.icustay_id
+  on co.icustay_id = l1.icustay_id
 left join l2
-  on ie.icustay_id = l2.icustay_id
-order by ie.icustay_id;
+  on co.icustay_id = l2.icustay_id
+order by co.icustay_id;
