@@ -44,7 +44,8 @@ with pvt as
           when valuenum <= 0 then null
           when itemid = 50810 and valuenum > 100 then null -- hematocrit
           when itemid = 50816 and valuenum > 100 then null -- FiO2
-          when itemid = 50816 and valuenum <= 1 then valuenum * 100
+          when itemid = 50816 and valuenum <=  0 then null -- FiO2
+          when itemid = 50816 and valuenum <=  1 then valuenum * 100
           when itemid = 50817 and valuenum > 100 then null -- O2 sat
           when itemid = 50815 and valuenum >  70 then null -- O2 flow
           when itemid = 50821 and valuenum > 800 then null -- PO2
@@ -137,7 +138,7 @@ with stg_spo2 as
         when itemid in (3420, 3422)
         -- all these values are well formatted
             then valuenum
-        when itemid = 190 and valuenum > 0.20 and valuenum < 1
+        when itemid = 190 and valuenum > 0.20 and valuenum <= 1
         -- well formatted but not in %
             then valuenum * 100
       else null end
