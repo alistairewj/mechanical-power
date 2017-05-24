@@ -124,7 +124,7 @@ with stg_spo2 as
     -- pre-process the FiO2s to ensure they are between 21-100%
     , max(
         case
-          when itemid = 223835
+          when itemid in (223835,727)
             then case
               when valuenum > 0 and valuenum <= 1
                 then valuenum * 100
@@ -149,6 +149,7 @@ with stg_spo2 as
   , 190 -- FiO2 set
   , 223835 -- Inspired O2 Fraction (FiO2)
   , 3422 -- FiO2 [measured]
+  , 727
   )
   -- exclude rows marked as error
   and error IS DISTINCT FROM 1
@@ -335,8 +336,8 @@ with l1 as
 )
 select
   co.icustay_id
-  , fio2_min_day1
-  , fio2_max_day1
+  , fio2_min_day1 as fio2_for_pao2_min_day1
+  , fio2_max_day1 as fio2_for_pao2_max_day1
   , pao2_min_day1
   , pao2_max_day1
   , paco2_min_day1
@@ -346,8 +347,8 @@ select
   , lactate_min_day1
   , lactate_max_day1
 
-  , fio2_min_day2
-  , fio2_max_day2
+  , fio2_min_day2 as fio2_for_pao2_min_day2
+  , fio2_max_day2 as fio2_for_pao2_max_day2
   , pao2_min_day2
   , pao2_max_day2
   , paco2_min_day2
