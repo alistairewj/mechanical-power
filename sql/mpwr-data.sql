@@ -121,6 +121,7 @@ select
   , mp.resp_rate_total_max_day1
   , mp.fio2_min_day1
   , mp.fio2_max_day1
+  , mp.ventmode_day1
 
   , mp.mechanical_power_min_day2
   , mp.mechanical_power_max_day2
@@ -138,6 +139,7 @@ select
   , mp.resp_rate_total_max_day2
   , mp.fio2_min_day2
   , mp.fio2_max_day2
+  , mp.ventmode_day2
 
   , rrt.rrt as rrtfirstday
   , de.ventfirstday
