@@ -11,7 +11,6 @@ with pvt as
     when itemid in (223762,676) and valuenum > 10 and valuenum < 50  then 'Temp' -- TempC
     when itemid in (646,220277) and valuenum > 0 and valuenum <= 100 then 'SpO2' -- SpO2
     when itemid in (1337, 223753) and value is not null then 'RASS'
-    when itemid in (1817, 228640) and valuenum > 0 then 'EtCO2' -- end tidal co2
   else null end as vital
 
   , case
@@ -58,9 +57,6 @@ with pvt as
     -- SPO2, peripheral
     646, 220277,
 
-    -- end tidal co2 (etco2)
-    1817, 228640,
-
     -- RASS (richmond agitation sedation scale, though mislabeled as riker)
     1337, 223753,
 
@@ -91,9 +87,6 @@ with pvt as
   , min(case when vital = 'RASS' then valuenum else null end) as RASS_Min
   , max(case when vital = 'RASS' then valuenum else null end) as RASS_Max
   , avg(case when vital = 'RASS' then valuenum else null end) as RASS_Mean
-  , min(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Min
-  , max(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Max
-  , avg(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Mean
   FROM  pvt
   where pvt.firstday = 1
   group by pvt.icustay_id
@@ -118,9 +111,6 @@ with pvt as
   , min(case when vital = 'RASS' then valuenum else null end) as RASS_Min
   , max(case when vital = 'RASS' then valuenum else null end) as RASS_Max
   , avg(case when vital = 'RASS' then valuenum else null end) as RASS_Mean
-  , min(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Min
-  , max(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Max
-  , avg(case when vital = 'EtCO2' then valuenum else null end) as EtCO2_Mean
   FROM  pvt
   where pvt.firstday = 0
   group by pvt.icustay_id
@@ -142,9 +132,6 @@ select
   , vd1.RASS_Min as RASS_Min_day1
   , vd1.RASS_Max as RASS_Max_day1
   , vd1.RASS_Mean as RASS_Mean_day1
-  , vd1.EtCO2_Min as EtCO2_Min_day1
-  , vd1.EtCO2_Max as EtCO2_Max_day1
-  , vd1.EtCO2_Mean as EtCO2_Mean_day1
 
   , vd2.HeartRate_Min as HeartRate_Min_day2
   , vd2.HeartRate_Max as HeartRate_Max_day2
@@ -161,9 +148,6 @@ select
   , vd2.RASS_Min as RASS_Min_day2
   , vd2.RASS_Max as RASS_Max_day2
   , vd2.RASS_Mean as RASS_Mean_day2
-  , vd2.EtCO2_Min as EtCO2_Min_day2
-  , vd2.EtCO2_Max as EtCO2_Max_day2
-  , vd2.EtCO2_Mean as EtCO2_Mean_day2
 from mpwr_cohort co
 left join vd1
   on co.icustay_id = vd1.icustay_id
