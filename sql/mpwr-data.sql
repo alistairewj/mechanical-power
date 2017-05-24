@@ -27,7 +27,7 @@ select
   , de.duration_first_vent_days
   , de.duration_vent_total_days
   , de.ventilator_free_days
-  
+
   , de.icu_los_days
   , de.hosp_los_days
 
@@ -119,6 +119,8 @@ select
   , mp.resp_rate_set_max_day1
   , mp.resp_rate_total_min_day1
   , mp.resp_rate_total_max_day1
+  , mp.fio2_min_day1
+  , mp.fio2_max_day1
 
   , mp.mechanical_power_min_day2
   , mp.mechanical_power_max_day2
@@ -134,6 +136,8 @@ select
   , mp.resp_rate_set_max_day2
   , mp.resp_rate_total_min_day2
   , mp.resp_rate_total_max_day2
+  , mp.fio2_min_day2
+  , mp.fio2_max_day2
 
   , rrt.rrt as rrtfirstday
   , de.ventfirstday
