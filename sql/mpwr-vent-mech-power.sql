@@ -69,8 +69,9 @@ group by co.icustay_id
   inner join mpwr_chartevents_vent vs
     on co.icustay_id = vs.icustay_id
   where vs.value is not null and vs.value != 'Other/Remarks'
+  and vs.itemid in (720, 223849)
   and vs.charttime <= co.starttime_first_vent + interval '2' day
-  and vs.charttime >= co.starttime_first_vent - interval '1' day
+  and vs.charttime >= co.starttime_first_vent
   group by vs.icustay_id, vs.value
 )
 , vs_mode_max as
@@ -78,9 +79,9 @@ group by co.icustay_id
   select icustay_id
   , ventmode
   , numobsday1
-  , ROW_NUMBER() over (partition by icustay_id order by numobsday1) as rn1
+  , ROW_NUMBER() over (partition by icustay_id order by numobsday1 DESC, numobsday2 DESC) as rn1
   , numobsday2
-  , ROW_NUMBER() over (partition by icustay_id order by numobsday2) as rn2
+  , ROW_NUMBER() over (partition by icustay_id order by numobsday2 DESC, numobsday1 DESC) as rn2
   from vs_mode
 )
 select
