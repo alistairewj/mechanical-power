@@ -32,7 +32,7 @@ select
   , wt.weight as chartedweight -- weight in kg
 
   -- source of admission
-  , de.hospital_admit_location
+  , de.hospital_admit_source
   , de.icu_admit_source
   , de.icu_disch_location
   , de.hospital_disch_location
@@ -143,12 +143,19 @@ select
 
   -- Binary flags indicating existence of any non-zero dose
   , med.dopamine_day1
+  , med.dobutamine_day1
   , med.epinephrine_day1
   , med.norepinephrine_day1
   , med.phenylephrine_day1
   , med.vasopressin_day1
   , med.milrinone_day1
-  , med.heparin_day1
+  , GREATEST(med.dopamine_day1
+    , med.dobutamine_day1
+    , med.epinephrine_day1
+    , med.norepinephrine_day1
+    , med.phenylephrine_day1
+    , med.vasopressin_day1
+    , med.milrinone_day1) as vasopressor_day1
 
 
 from patient pt
@@ -169,7 +176,7 @@ left join mp_demographics de
 left join mp_vitals vi
   on pt.patientunitstayid = vi.patientunitstayid
 left join mp_bg bg
-  on pt.patientunitstayid = la.patientunitstayid
+  on pt.patientunitstayid = bg.patientunitstayid
 -- left join rs_diagnosis dx
 --   on pt.patientunitstayid = dx.patientunitstayid
 left join mp_meds med

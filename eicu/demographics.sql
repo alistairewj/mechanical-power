@@ -114,9 +114,7 @@ select
 
 from patient pat
 -- apache score
--- the max() just collapses apache scores
--- have confirmed that when there is more than 1 apache score for 1 patient, it is the same value
-left join (select patientunitstayid, max(apachescore) as apachescore from APACHEPATIENTRESULT where apacheversion = 'IVa' group by patientunitstayid) aiva
+left join (select patientunitstayid, apachescore, predictedhospitalmortality from APACHEPATIENTRESULT where apacheversion = 'IVa') aiva
   on pat.patientunitstayid = aiva.patientunitstayid
 
 -- apache comorbidity components + diabetes flag
