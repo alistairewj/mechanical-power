@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS mp_sofa CASCADE;
+CREATE TABLE mp_sofa AS
 with sf as
 (
   SELECT
@@ -38,12 +40,12 @@ with sf as
 
     -- Cardiovascular
     , case
-        when med.epinephrine > 0
-             or med.norepinephrine > 0
-             or med.dopamine > 0
-             or med.dobutamine > 0 then 3
+        when med.epinephrine_day1 > 0
+             or med.norepinephrine_day1 > 0
+             or med.dopamine_day1 > 0
+             or med.dobutamine_day1 > 0 then 3
         -- when rate_dopamine >  5 or rate_epinephrine <= 0.1 or rate_norepinephrine <= 0.1 then 3
-        when vi.mbp_min < 70 then 1
+        when vi.map_min_day1 < 70 then 1
         else 0
       end as sofa_cardiovascular
 
@@ -75,8 +77,12 @@ with sf as
     on pt.patientunitstayid = la.patientunitstayid
   left join mp_meds med
     on pt.patientunitstayid = med.patientunitstayid
+  left join mp_vitals vi
+    on pt.patientunitstayid = vi.patientunitstayid
   left join apacheapsvar aav
     on pt.patientunitstayid = aav.patientunitstayid
+  left join apachepredvar apv
+    on pt.patientunitstayid = apv.patientunitstayid
 )
 select
   sf.patientunitstayid

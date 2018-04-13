@@ -90,6 +90,13 @@ select
   -- COPD
   -- Smoking status
   -- Other scores - OASIS? SOFA? SAPS II?
+  , sf.sofa_cardiovascular
+  , sf.sofa_renal
+  , sf.sofa_cns
+  , sf.sofa_coagulation
+  , sf.sofa_liver
+  , sf.sofa_respiration
+  , sf.sofa
   -- RRT anytime
   -- vasopressor first day
   -- code status
@@ -246,4 +253,6 @@ left join mp_meds med
 left join mp_vent v
   on pt.patientunitstayid = v.patientunitstayid
 left join mp_weight wt
-  on pt.patientunitstayid = wt.patientunitstayid;
+  on pt.patientunitstayid = wt.patientunitstayid
+left join mp_sofa sf
+  on pt.patientunitstayid = sf.patientunitstayid;

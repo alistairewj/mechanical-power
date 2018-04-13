@@ -20,7 +20,7 @@ with co as
   , max(creatinine) as creatinine_max
   , min(platelets) as platelets_min
   , max(platelets) as platelets_max
-  from pivoted_bg p
+  from pivoted_lab p
   INNER JOIN co
     ON  p.patientunitstayid = co.patientunitstayid
     and p.chartoffset >  co.unitadmitoffset + (-1*60)
