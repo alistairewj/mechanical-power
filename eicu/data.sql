@@ -182,6 +182,12 @@ select
     , v.tidalvolumespontaneous_max_day1
     , v.fio2_min_day1
     , v.fio2_max_day1
+    , v.respiratoryrate_min_day1
+    , v.respiratoryrate_max_day1
+    , v.respiratoryrateset_min_day1
+    , v.respiratoryrateset_max_day1
+    , v.respiratoryratespontaneous_min_day1
+    , v.respiratoryratespontaneous_max_day1
 
     , v.meanairwaypressure_min_day2
     , v.peakpressure_min_day2
@@ -207,6 +213,12 @@ select
     , v.tidalvolumespontaneous_max_day2
     , v.fio2_min_day2
     , v.fio2_max_day2
+    , v.respiratoryrate_min_day2
+    , v.respiratoryrate_max_day2
+    , v.respiratoryrateset_min_day2
+    , v.respiratoryrateset_max_day2
+    , v.respiratoryratespontaneous_min_day2
+    , v.respiratoryratespontaneous_max_day2
 
 from patient pt
 -- Sub-select to cohort - this filters patients using our inclusion criteria

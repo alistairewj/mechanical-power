@@ -25,6 +25,9 @@ with co as
       , min(tidalvolumeset) as tidalvolumeset_min
       , min(tidalvolumespontaneous) as tidalvolumespontaneous_min
       , min(fio2) as fio2_min
+      , min(respiratoryrate) as respiratoryrate_min
+      , min(respiratoryrateset) as respiratoryrateset_min
+      , min(respiratoryratespontaneous) as respiratoryratespontaneous_min
 
       , max(meanairwaypressure) as meanairwaypressure_max
       , max(peakpressure) as peakpressure_max
@@ -38,6 +41,9 @@ with co as
       , max(tidalvolumeset) as tidalvolumeset_max
       , max(tidalvolumespontaneous) as tidalvolumespontaneous_max
       , max(fio2) as fio2_max
+      , max(respiratoryrate) as respiratoryrate_max
+      , max(respiratoryrateset) as respiratoryrateset_max
+      , max(respiratoryratespontaneous) as respiratoryratespontaneous_max
   from vent_unpivot_rc p
   INNER JOIN co
     ON  p.patientunitstayid = co.patientunitstayid
@@ -62,6 +68,9 @@ with co as
       , min(tidalvolumeset) as tidalvolumeset_min
       , min(tidalvolumespontaneous) as tidalvolumespontaneous_min
       , min(fio2) as fio2_min
+      , min(respiratoryrate) as respiratoryrate_min
+      , min(respiratoryrateset) as respiratoryrateset_min
+      , min(respiratoryratespontaneous) as respiratoryratespontaneous_min
 
       , max(meanairwaypressure) as meanairwaypressure_max
       , max(peakpressure) as peakpressure_max
@@ -75,6 +84,9 @@ with co as
       , max(tidalvolumeset) as tidalvolumeset_max
       , max(tidalvolumespontaneous) as tidalvolumespontaneous_max
       , max(fio2) as fio2_max
+      , max(respiratoryrate) as respiratoryrate_max
+      , max(respiratoryrateset) as respiratoryrateset_max
+      , max(respiratoryratespontaneous) as respiratoryratespontaneous_max
   from vent_unpivot_rc p
   INNER JOIN co
     ON  p.patientunitstayid = co.patientunitstayid
@@ -109,6 +121,12 @@ select
     , vw1.tidalvolumespontaneous_max as tidalvolumespontaneous_max_day1
     , vw1.fio2_min as fio2_min_day1
     , vw1.fio2_max as fio2_max_day1
+    , vw1.respiratoryrate_min as respiratoryrate_min_day1
+    , vw1.respiratoryrate_max as respiratoryrate_max_day1
+    , vw1.respiratoryrateset_min as respiratoryrateset_min_day1
+    , vw1.respiratoryrateset_max as respiratoryrateset_max_day1
+    , vw1.respiratoryratespontaneous_min as respiratoryratespontaneous_min_day1
+    , vw1.respiratoryratespontaneous_max as respiratoryratespontaneous_max_day1
 
     , vw2.meanairwaypressure_min as meanairwaypressure_min_day2
     , vw2.peakpressure_min as peakpressure_min_day2
@@ -134,6 +152,12 @@ select
     , vw2.tidalvolumespontaneous_max as tidalvolumespontaneous_max_day2
     , vw2.fio2_min as fio2_min_day2
     , vw2.fio2_max as fio2_max_day2
+    , vw2.respiratoryrate_min as respiratoryrate_min_day2
+    , vw2.respiratoryrate_max as respiratoryrate_max_day2
+    , vw2.respiratoryrateset_min as respiratoryrateset_min_day2
+    , vw2.respiratoryrateset_max as respiratoryrateset_max_day2
+    , vw2.respiratoryratespontaneous_min as respiratoryratespontaneous_min_day2
+    , vw2.respiratoryratespontaneous_max as respiratoryratespontaneous_max_day2
 from patient pat
 left join vw1
   on pat.patientunitstayid = vw1.patientunitstayid
