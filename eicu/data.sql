@@ -157,6 +157,52 @@ select
     , med.vasopressin_day1
     , med.milrinone_day1) as vasopressor_day1
 
+    -- VENT DATA
+    , v.meanairwaypressure_min_day1
+    , v.peakpressure_min_day1
+    , v.peakflow_min_day1
+    , v.plateaupressure_min_day1
+    , v.pressuresupportpressure_min_day1
+    , v.pressurecontrolpressure_min_day1
+    , v.rsbi_min_day1
+    , v.peep_min_day1
+    , v.tidalvolumeobserved_min_day1
+    , v.tidalvolumeset_min_day1
+    , v.tidalvolumespontaneous_min_day1
+    , v.meanairwaypressure_max_day1
+    , v.peakpressure_max_day1
+    , v.peakflow_max_day1
+    , v.plateaupressure_max_day1
+    , v.pressuresupportpressure_max_day1
+    , v.pressurecontrolpressure_max_day1
+    , v.rsbi_max_day1
+    , v.peep_max_day1
+    , v.tidalvolumeobserved_max_day1
+    , v.tidalvolumeset_max_day1
+    , v.tidalvolumespontaneous_max_day1
+
+    , v.meanairwaypressure_min_day2
+    , v.peakpressure_min_day2
+    , v.peakflow_min_day2
+    , v.plateaupressure_min_day2
+    , v.pressuresupportpressure_min_day2
+    , v.pressurecontrolpressure_min_day2
+    , v.rsbi_min_day2
+    , v.peep_min_day2
+    , v.tidalvolumeobserved_min_day2
+    , v.tidalvolumeset_min_day2
+    , v.tidalvolumespontaneous_min_day2
+    , v.meanairwaypressure_max_day2
+    , v.peakpressure_max_day2
+    , v.peakflow_max_day2
+    , v.plateaupressure_max_day2
+    , v.pressuresupportpressure_max_day2
+    , v.pressurecontrolpressure_max_day2
+    , v.rsbi_max_day2
+    , v.peep_max_day2
+    , v.tidalvolumeobserved_max_day2
+    , v.tidalvolumeset_max_day2
+    , v.tidalvolumespontaneous_max_day2
 
 from patient pt
 -- Sub-select to cohort - this filters patients using our inclusion criteria
@@ -181,5 +227,7 @@ left join mp_bg bg
 --   on pt.patientunitstayid = dx.patientunitstayid
 left join mp_meds med
   on pt.patientunitstayid = med.patientunitstayid
+left join mp_vent v
+  on pt.patientunitstayid = v.patientunitstayid
 left join mp_weight wt
   on pt.patientunitstayid = wt.patientunitstayid;
