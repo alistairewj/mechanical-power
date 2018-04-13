@@ -24,7 +24,7 @@ with co as
       , min(coalesce(tidalvolumeobserved,tidalvolumeestimated,tidalvolume)) as tidalvolumeobserved_min
       , min(tidalvolumeset) as tidalvolumeset_min
       , min(tidalvolumespontaneous) as tidalvolumespontaneous_min
-
+      , min(fio2) as fio2_min
 
       , max(meanairwaypressure) as meanairwaypressure_max
       , max(peakpressure) as peakpressure_max
@@ -37,6 +37,7 @@ with co as
       , max(coalesce(tidalvolumeobserved,tidalvolumeestimated,tidalvolume)) as tidalvolumeobserved_max
       , max(tidalvolumeset) as tidalvolumeset_max
       , max(tidalvolumespontaneous) as tidalvolumespontaneous_max
+      , max(fio2) as fio2_max
   from vent_unpivot_rc p
   INNER JOIN co
     ON  p.patientunitstayid = co.patientunitstayid
@@ -60,7 +61,7 @@ with co as
       , min(coalesce(tidalvolumeobserved,tidalvolumeestimated,tidalvolume)) as tidalvolumeobserved_min
       , min(tidalvolumeset) as tidalvolumeset_min
       , min(tidalvolumespontaneous) as tidalvolumespontaneous_min
-
+      , min(fio2) as fio2_min
 
       , max(meanairwaypressure) as meanairwaypressure_max
       , max(peakpressure) as peakpressure_max
@@ -73,6 +74,7 @@ with co as
       , max(coalesce(tidalvolumeobserved,tidalvolumeestimated,tidalvolume)) as tidalvolumeobserved_max
       , max(tidalvolumeset) as tidalvolumeset_max
       , max(tidalvolumespontaneous) as tidalvolumespontaneous_max
+      , max(fio2) as fio2_max
   from vent_unpivot_rc p
   INNER JOIN co
     ON  p.patientunitstayid = co.patientunitstayid
@@ -105,6 +107,8 @@ select
     , vw1.tidalvolumeobserved_max as tidalvolumeobserved_max_day1
     , vw1.tidalvolumeset_max as tidalvolumeset_max_day1
     , vw1.tidalvolumespontaneous_max as tidalvolumespontaneous_max_day1
+    , vw1.fio2_min as fio2_min_day1
+    , vw1.fio2_max as fio2_max_day1
 
     , vw2.meanairwaypressure_min as meanairwaypressure_min_day2
     , vw2.peakpressure_min as peakpressure_min_day2
@@ -128,6 +132,8 @@ select
     , vw2.tidalvolumeobserved_max as tidalvolumeobserved_max_day2
     , vw2.tidalvolumeset_max as tidalvolumeset_max_day2
     , vw2.tidalvolumespontaneous_max as tidalvolumespontaneous_max_day2
+    , vw2.fio2_min as fio2_min_day2
+    , vw2.fio2_max as fio2_max_day2
 from patient pat
 left join vw1
   on pat.patientunitstayid = vw1.patientunitstayid

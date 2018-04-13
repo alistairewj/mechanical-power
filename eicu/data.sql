@@ -180,6 +180,8 @@ select
     , v.tidalvolumeobserved_max_day1
     , v.tidalvolumeset_max_day1
     , v.tidalvolumespontaneous_max_day1
+    , v.fio2_min_day1
+    , v.fio2_max_day1
 
     , v.meanairwaypressure_min_day2
     , v.peakpressure_min_day2
@@ -203,6 +205,8 @@ select
     , v.tidalvolumeobserved_max_day2
     , v.tidalvolumeset_max_day2
     , v.tidalvolumespontaneous_max_day2
+    , v.fio2_min_day2
+    , v.fio2_max_day2
 
 from patient pt
 -- Sub-select to cohort - this filters patients using our inclusion criteria
