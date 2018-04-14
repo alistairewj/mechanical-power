@@ -266,8 +266,6 @@ left join mp_vitals vi
   on pt.patientunitstayid = vi.patientunitstayid
 left join mp_bg bg
   on pt.patientunitstayid = bg.patientunitstayid
--- left join rs_diagnosis dx
---   on pt.patientunitstayid = dx.patientunitstayid
 left join mp_meds med
   on pt.patientunitstayid = med.patientunitstayid
 left join mp_vent v
