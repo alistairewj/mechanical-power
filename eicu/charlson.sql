@@ -162,7 +162,7 @@ SELECT
 		'notes/Progress Notes/Past History/Organ Systems/Gastrointestinal (R)/Cirrhosis/biopsy proven')
     THEN 1 ELSE 0 END) as liver1
 
-FROM sepsisregional s
+FROM patient s
 LEFT JOIN pasthistory ph
 ON s.patientunitstayid = ph.patientunitstayid
 GROUP BY s.patientunitstayid

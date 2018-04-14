@@ -49,7 +49,7 @@ select pt.patientunitstayid
   , CASE WHEN aav.meanbp = -1 THEN NULL ELSE aav.meanbp END AS meanbp
   , CASE WHEN aav.urine = -1 THEN NULL ELSE aav.urine END AS UrineOutput
   -- binary flags
-  , apv.vent as mechvent
+  , apv.oOBVentDay1 as mechvent
   , apv.electivesurgery
 from patient pt
 LEFT JOIN apacheapsvar aav

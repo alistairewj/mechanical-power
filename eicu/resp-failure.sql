@@ -31,7 +31,6 @@ with rf1 as
         when diagnosisstring = 'surgery|respiratory failure|acute respiratory distress' then 1
         when diagnosisstring like 'surgery|respiratory failure|ARDS%' then 1
       else 0 end) as ards_dx
-)
   from diagnosis
   where diagnosisoffset >= -60 and diagnosisoffset < 60*24
   group by patientunitstayid
