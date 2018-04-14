@@ -27,6 +27,8 @@ with rf1 as
     , max(case
         when diagnosisstring = 'burns/trauma|trauma - systemic effects|ARDS' then 1
         when diagnosisstring like 'pulmonary|respiratory failure|ARDS%' then 1
+        when diagnosisstring = 'pulmonary|respiratory failure|acute respiratory distress' then 1
+        when diagnosisstring = 'surgery|respiratory failure|acute respiratory distress' then 1
         when diagnosisstring like 'surgery|respiratory failure|ARDS%' then 1
       else 0 end) as ards_dx
 )
