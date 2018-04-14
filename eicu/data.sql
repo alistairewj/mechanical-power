@@ -101,6 +101,25 @@ select
   -- RRT anytime
   -- code status
 
+  -- from table 8 charlson
+  , ch.mets6
+  , ch.aids6
+  , ch.liver3
+  , ch.stroke2
+  , ch.renal2
+  , ch.dm
+  , ch.cancer2
+  , ch.leukemia2
+  , ch.lymphoma2
+  , ch.mi1
+  , ch.chf1
+  , ch.pvd1
+  , ch.tia1
+  , ch.dementia1
+  , ch.copd1
+  , ch.ctd1
+  , ch.pud1
+  , ch.liver1
   -- ********************** --
   -- ******* VITALS ******* --
   -- ********************** --
@@ -257,4 +276,6 @@ left join mp_weight wt
 left join mp_sofa sf
   on pt.patientunitstayid = sf.patientunitstayid
 left join mp_respfailure rf
-  on pt.patientunitstayid = rf.patientunitstayid;
+  on pt.patientunitstayid = rf.patientunitstayid
+left join mp_charlson ch
+  on pt.patientunitstayid = ch.patientunitstayid;
