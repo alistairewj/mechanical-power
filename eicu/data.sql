@@ -90,7 +90,8 @@ select
   , rf.respfailure
   , rf.copd
   -- Smoking status
-  -- Other scores - OASIS? SOFA? SAPS II?
+  -- Other scores
+  , oa.oasis
   , sf.sofa_cardiovascular
   , sf.sofa_renal
   , sf.sofa_cns
@@ -277,5 +278,7 @@ left join mp_sofa sf
   on pt.patientunitstayid = sf.patientunitstayid
 left join mp_respfailure rf
   on pt.patientunitstayid = rf.patientunitstayid
+left join mp_oasis oa
+  on pt.patientunitstayid = oa.patientunitstayid
 left join mp_charlson ch
   on pt.patientunitstayid = ch.patientunitstayid;
