@@ -101,6 +101,9 @@ select
   , sf.sofa
   -- RRT anytime
   -- code status
+  , cs.fullcode
+  , cs.dnr
+  , cs.cmo
 
   -- from table 8 charlson
   , ch.mets6
@@ -279,4 +282,6 @@ left join mp_respfailure rf
 left join mp_oasis oa
   on pt.patientunitstayid = oa.patientunitstayid
 left join mp_charlson ch
-  on pt.patientunitstayid = ch.patientunitstayid;
+  on pt.patientunitstayid = ch.patientunitstayid
+left join mp_codestatus cs
+  on pt.patientunitstayid = cs.patientunitstayid;
