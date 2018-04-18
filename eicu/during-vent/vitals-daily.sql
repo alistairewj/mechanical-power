@@ -1,15 +1,7 @@
 DROP TABLE IF EXISTS public.mp_vitals CASCADE;
 CREATE TABLE public.mp_vitals as
-with co as
-(
-  -- define the start time for data extraction
-  select
-    patientunitstayid
-    , starttime as unitadmitoffset
-  from mp_cohort
-)
 -- day 1
-, vw1 as
+with vw1 as
 (
   select p.patientunitstayid
   , min(heartrate) as heartrate_min
@@ -21,10 +13,10 @@ with co as
   , min(o2saturation) as spo2_min
   , max(o2saturation) as spo2_max
   from pivoted_vital p
-  INNER JOIN co
+  INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.unitadmitoffset + (-1*60)
-    and p.chartoffset <= co.unitadmitoffset + (24*60)
+    and p.chartoffset >  co.startoffset + (-1*60)
+    and p.chartoffset <= co.startoffset + (24*60)
   WHERE heartrate IS NOT NULL
   OR map IS NOT NULL
   OR temperature IS NOT NULL
@@ -44,10 +36,10 @@ with co as
   , min(o2saturation) as spo2_min
   , max(o2saturation) as spo2_max
   from pivoted_vital p
-  INNER JOIN co
+  INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.unitadmitoffset + (24*60)
-    and p.chartoffset <= co.unitadmitoffset + (48*60)
+    and p.chartoffset >  co.startoffset + (24*60)
+    and p.chartoffset <= co.startoffset + (48*60)
   WHERE heartrate IS NOT NULL
   OR map IS NOT NULL
   OR temperature IS NOT NULL

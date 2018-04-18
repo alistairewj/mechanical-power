@@ -6,7 +6,7 @@ with co as
   -- define the start time for data extraction
   select
     patientunitstayid
-    , starttime as unitadmitoffset
+    , startoffset as unitadmitoffset
   from mp_cohort
 )
 select

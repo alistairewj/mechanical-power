@@ -1,16 +1,8 @@
 -- This script extracts highest/lowest labs, as appropriate, for the first 24 hours of a patient's stay.
 DROP TABLE IF EXISTS public.mp_labs CASCADE;
 CREATE TABLE public.mp_labs as
-with co as
-(
-  -- define the start time for data extraction
-  select
-    patientunitstayid
-    , starttime as unitadmitoffset
-  from mp_cohort
-)
 -- day 1
-, vw1 as
+with vw1 as
 (
   select p.patientunitstayid
   , min(bilirubin) as bilirubin_min
@@ -20,10 +12,10 @@ with co as
   , min(platelets) as platelets_min
   , max(platelets) as platelets_max
   from pivoted_lab p
-  INNER JOIN co
+  INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.unitadmitoffset + (-1*60)
-    and p.chartoffset <= co.unitadmitoffset + (24*60)
+    and p.chartoffset >  co.startoffset + (-1*60)
+    and p.chartoffset <= co.startoffset + (24*60)
   group by p.patientunitstayid
 )
 select

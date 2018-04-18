@@ -2,16 +2,8 @@
 
 DROP TABLE IF EXISTS public.mp_meds CASCADE;
 CREATE TABLE public.mp_meds as
-with co as
-(
-  -- define the start time for data extraction
-  select
-    patientunitstayid
-    , starttime as unitadmitoffset
-  from mp_cohort
-)
 -- day 1 for medication interface
-, vw1 as
+with vw1 as
 (
   select p.patientunitstayid
   , max(norepinephrine) as norepinephrine
@@ -22,10 +14,10 @@ with co as
   , max(vasopressin) as vasopressin
   , max(milrinone) as milrinone
   from pivoted_med p
-  INNER JOIN co
+  INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.unitadmitoffset + (-1*60)
-    and p.chartoffset <= co.unitadmitoffset + (24*60)
+    and p.chartoffset >  co.startoffset + (-1*60)
+    and p.chartoffset <= co.startoffset + (24*60)
   group by p.patientunitstayid
 )
 -- day 1 for infusions
@@ -40,10 +32,10 @@ with co as
   , max(vasopressin) as vasopressin
   , max(milrinone) as milrinone
   from pivoted_infusion p
-  INNER JOIN co
+  INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.unitadmitoffset + (-1*60)
-    and p.chartoffset <= co.unitadmitoffset + (24*60)
+    and p.chartoffset >  co.startoffset + (-1*60)
+    and p.chartoffset <= co.startoffset + (24*60)
   group by p.patientunitstayid
 )
 select

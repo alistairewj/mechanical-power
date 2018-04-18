@@ -6,7 +6,7 @@ with co as
   -- define the start time for data extraction
   select
     patientunitstayid
-    , starttime as unitadmitoffset
+    , startoffset
   from mp_cohort
 )
 -- apache admission diagnosis
@@ -42,7 +42,7 @@ with co as
   from diagnosis dx
   INNER JOIN co
     ON dx.patientunitstayid = co.patientunitstayid
-  where dx.diagnosisoffset <= co.starttime + (48*60)
+  where dx.diagnosisoffset <= co.startoffset + (48*60)
   group by dx.patientunitstayid
 )
 -- past history
@@ -106,7 +106,7 @@ with co as
   from pasthistory ph
   INNER JOIN co
     ON ph.patientunitstayid = co.patientunitstayid
-  where ph.diagnosisoffset <= co.starttime + (48*60)
+  where ph.diagnosisoffset <= co.startoffset + (48*60)
   group by ph.patientunitstayid
 )
 -- group together all the respiratory failures

@@ -13,6 +13,7 @@ with pt as
   select pt.patientunitstayid
   , pt.patienthealthsystemstayid
   , pt.uniquepid
+  , pt.hospitalid
   , hospitaladmitoffset
   , hospitaladmityear, hospitaldischargeyear
   , case when pt.age = '' then null
@@ -48,7 +49,7 @@ with pt as
 (
   select
     patientunitstayid
-    , min(chartoffset) as admittime
+    , min(chartoffset) as admitoffset
   from pivoted_vital p
   WHERE heartrate IS NOT NULL
   GROUP BY patientunitstayid
@@ -58,20 +59,16 @@ with pt as
 (
   select
     patientunitstayid
-    , min(chartoffset) as starttime
-  from vent_unpivot_rc p
-  WHERE coalesce(tidalvolumeobserved,tidalvolumeestimated,
-    tidalvolume,tidalvolumeset,tidalvolumespontaneous,
-    plateaupressure, meanairwaypressure, peakpressure, peakflow
-  ) IS NOT NULL
+    , min(startoffset) as startoffset
+  from ventdurations p
   GROUP BY patientunitstayid
 )
--- only patients from 2010-2014
-select vw1.PATIENTUNITSTAYID
+select vw1.patientunitstayid
+, vw1.hospitalid
 -- starttime is the start time of mechanical ventilation
-, st.starttime
+, st.startoffset
 -- admit time is the first observed heart rate
-, adm.admittime
+, adm.admitoffset
 , case when age < 16 then 1 else 0 end as exclusion_non_adult
 , case when HOSP_NUM != 1 then 1 else 0 end as exclusion_secondary_hospital_stay
 , case when ICUSTAY_NUM != 1 then 1 else 0 end as exclusion_secondary_icu_stay

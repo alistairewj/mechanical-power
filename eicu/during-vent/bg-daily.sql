@@ -2,16 +2,8 @@
 
 DROP TABLE IF EXISTS public.mp_bg CASCADE;
 CREATE TABLE public.mp_bg as
-with co as
-(
-  -- define the start time for data extraction
-  select
-    patientunitstayid
-    , starttime as unitadmitoffset
-  from mp_cohort
-)
 -- day 1
-, vw1 as
+with vw1 as
 (
   select p.patientunitstayid
   , min(pao2) as PaO2_min
@@ -23,10 +15,10 @@ with co as
   , min(pao2/fio2) as pao2fio2_min
   , max(pao2/fio2) as pao2fio2_max
   from pivoted_bg p
-  INNER JOIN co
+  INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.unitadmitoffset + (-1*60)
-    and p.chartoffset <= co.unitadmitoffset + (24*60)
+    and p.chartoffset >  co.startoffset + (-1*60)
+    and p.chartoffset <= co.startoffset + (24*60)
   WHERE pao2 IS NOT NULL
   OR paco2 IS NOT NULL
   OR ph IS NOT NULL
@@ -45,10 +37,10 @@ with co as
   , min(pao2/fio2) as pao2fio2_min
   , max(pao2/fio2) as pao2fio2_max
   from pivoted_bg p
-  INNER JOIN co
+  INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.unitadmitoffset + (24*60)
-    and p.chartoffset <= co.unitadmitoffset + (48*60)
+    and p.chartoffset >  co.startoffset + (24*60)
+    and p.chartoffset <= co.startoffset + (48*60)
   WHERE pao2 IS NOT NULL
   OR paco2 IS NOT NULL
   OR ph IS NOT NULL

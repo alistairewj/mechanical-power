@@ -13,8 +13,8 @@ with la as
   from pivoted_lab p
   INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.admittime + (-1*60)
-    and p.chartoffset <= co.admittime + (24*60)
+    and p.chartoffset >  co.admitoffset + (-1*60)
+    and p.chartoffset <= co.admitoffset + (24*60)
   group by p.patientunitstayid
 )
 -- day 1 for medication interface
@@ -31,8 +31,8 @@ with la as
   from pivoted_med p
   INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.admittime + (-1*60)
-    and p.chartoffset <= co.admittime + (24*60)
+    and p.chartoffset >  co.admitoffset + (-1*60)
+    and p.chartoffset <= co.admitoffset + (24*60)
   group by p.patientunitstayid
 )
 -- day 1 for infusions
@@ -49,8 +49,8 @@ with la as
   from pivoted_infusion p
   INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.admittime + (-1*60)
-    and p.chartoffset <= co.admittime + (24*60)
+    and p.chartoffset >  co.admitoffset + (-1*60)
+    and p.chartoffset <= co.admitoffset + (24*60)
   group by p.patientunitstayid
 )
 -- combine medication + infusion tables
@@ -86,8 +86,8 @@ with la as
   from pivoted_vital p
   INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
-    and p.chartoffset >  co.admittime + (-1*60)
-    and p.chartoffset <= co.admittime + (24*60)
+    and p.chartoffset >  co.admitoffset + (-1*60)
+    and p.chartoffset <= co.admitoffset + (24*60)
   WHERE heartrate IS NOT NULL
   OR map IS NOT NULL
   OR temperature IS NOT NULL
