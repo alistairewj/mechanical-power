@@ -127,6 +127,16 @@ select
   , htwtf.height_fixed as height
   , wtm.weight as chartedweight
   , htwtf.weight_fixed as weight
+  -- add ideal body weight
+  , CASE
+      WHEN pt.gender = 'Female' THEN 45.5
+    ELSE 50 END
+    -- add kg for each inch above 5 feet
+    +
+    CASE
+      WHEN (htwtf.height_fixed/2.54) < 60 THEN 0
+    ELSE ((htwtf.height_fixed/2.54)-60)*2.3 END
+    as ibw
 from patient pt
 left join wt_median wtm
   on pt.patientunitstayid = wtm.patientunitstayid
