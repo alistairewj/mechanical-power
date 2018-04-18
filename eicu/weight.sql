@@ -15,7 +15,7 @@ with t1 as
   )
   -- ensure that nursingchartvalue is numeric
   and nursingchartvalue~'^([0-9]+\.?[0-9]*|\.[0-9]+)$'
-  and NURSINGCHARTOFFSET >= -60 and NURSINGCHARTOFFSET < 60*24
+  and NURSINGCHARTOFFSET < 60*24
 )
 -- weight from intake/output table
 , t2 as
@@ -33,7 +33,7 @@ with t1 as
   ( 'flowsheet|Flowsheet Cell Labels|I&O|Weight|Bodyweight (kg)'
   , 'flowsheet|Flowsheet Cell Labels|I&O|Weight|Bodyweight (lb)'
   )
-  and INTAKEOUTPUTOFFSET >= -60 and INTAKEOUTPUTOFFSET < 60*24
+  and INTAKEOUTPUTOFFSET < 60*24
 )
 -- weight from infusiondrug
 , t3 as
@@ -43,23 +43,26 @@ with t1 as
     , cast(PATIENTWEIGHT as double precision) as weight
   from infusiondrug
   where PATIENTWEIGHT is not null
-  and INFUSIONOFFSET >= -60 and INFUSIONOFFSET < 60*24
+  and INFUSIONOFFSET < 60*24
   and PATIENTWEIGHT~'^([0-9]+\.?[0-9]*|\.[0-9]+)$'
+)
+-- combine together all weights
+, wt as
+(
+  SELECT patientunitstayid, weight
+  FROM t1
+  UNION ALL
+  SELECT patientunitstayid, weight
+  FROM t2
+  UNION ALL
+  SELECT patientunitstayid, weight
+  FROM t3
 )
 select
   pt.patientunitstayid
-  , percentile_disc(0.5) WITHIN GROUP
-  ( ORDER BY coalesce(t1.weight, t2.weight, t3.weight) )
-  as weight
+  , percentile_disc(0.5) WITHIN GROUP ( ORDER BY wt.weight ) as weight
 from patient pt
-left join t1
-  on pt.patientunitstayid = t1.patientunitstayid
-  and t1.weight >= 30 and t1.weight <= 300
-left join t2
-  on pt.patientunitstayid = t2.patientunitstayid
-  and t2.weight >= 30 and t2.weight <= 300
-left join t3
-  on pt.patientunitstayid = t3.patientunitstayid
-  and t3.weight >= 30 and t3.weight <= 300
+left join wt
+  on pt.patientunitstayid = wt.patientunitstayid
 group by pt.patientunitstayid
 order by pt.patientunitstayid;
