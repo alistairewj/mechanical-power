@@ -190,10 +190,7 @@ select
   -- VENT DATA
   , v.meanairwaypressure_min_day1
   , v.peakpressure_min_day1
-  , v.peakflow_min_day1
   , v.plateaupressure_min_day1
-  , v.pressuresupportpressure_min_day1
-  , v.pressurecontrolpressure_min_day1
   , v.rsbi_min_day1
   , v.peep_min_day1
   , v.tidalvolumeobserved_min_day1
@@ -201,10 +198,7 @@ select
   , v.tidalvolumespontaneous_min_day1
   , v.meanairwaypressure_max_day1
   , v.peakpressure_max_day1
-  , v.peakflow_max_day1
   , v.plateaupressure_max_day1
-  , v.pressuresupportpressure_max_day1
-  , v.pressurecontrolpressure_max_day1
   , v.rsbi_max_day1
   , v.peep_max_day1
   , v.tidalvolumeobserved_max_day1
@@ -221,10 +215,7 @@ select
 
   , v.meanairwaypressure_min_day2
   , v.peakpressure_min_day2
-  , v.peakflow_min_day2
   , v.plateaupressure_min_day2
-  , v.pressuresupportpressure_min_day2
-  , v.pressurecontrolpressure_min_day2
   , v.rsbi_min_day2
   , v.peep_min_day2
   , v.tidalvolumeobserved_min_day2
@@ -232,10 +223,7 @@ select
   , v.tidalvolumespontaneous_min_day2
   , v.meanairwaypressure_max_day2
   , v.peakpressure_max_day2
-  , v.peakflow_max_day2
   , v.plateaupressure_max_day2
-  , v.pressuresupportpressure_max_day2
-  , v.pressurecontrolpressure_max_day2
   , v.rsbi_max_day2
   , v.peep_max_day2
   , v.tidalvolumeobserved_max_day2
