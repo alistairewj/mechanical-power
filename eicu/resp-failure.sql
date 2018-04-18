@@ -106,7 +106,7 @@ with co as
   from pasthistory ph
   INNER JOIN co
     ON ph.patientunitstayid = co.patientunitstayid
-  where ph.diagnosisoffset <= co.startoffset + (48*60)
+  where ph.pasthistoryoffset <= co.startoffset + (48*60)
   group by ph.patientunitstayid
 )
 -- group together all the respiratory failures
