@@ -3,12 +3,11 @@ DROP TABLE IF EXISTS public.mp_labs CASCADE;
 CREATE TABLE public.mp_labs as
 with co as
 (
-  -- define the admission time
-  -- 0 means use the administrative admission time
+  -- define the start time for data extraction
   select
     patientunitstayid
-    , 0 as unitadmitoffset
-  from patient
+    , starttime as unitadmitoffset
+  from mp_cohort
 )
 -- day 1
 , vw1 as

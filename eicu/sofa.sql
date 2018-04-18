@@ -1,6 +1,101 @@
 DROP TABLE IF EXISTS mp_sofa CASCADE;
 CREATE TABLE mp_sofa AS
-with sf as
+-- day 1 labs
+with la as
+(
+  select p.patientunitstayid
+  , min(bilirubin) as bilirubin_min_day1
+  , max(bilirubin) as bilirubin_max_day1
+  , min(creatinine) as creatinine_min_day1
+  , max(creatinine) as creatinine_max_day1
+  , min(platelets) as platelets_min_day1
+  , max(platelets) as platelets_max_day1
+  from pivoted_lab p
+  INNER JOIN mp_cohort co
+    ON  p.patientunitstayid = co.patientunitstayid
+    and p.chartoffset >  co.admittime + (-1*60)
+    and p.chartoffset <= co.admittime + (24*60)
+  group by p.patientunitstayid
+)
+-- day 1 for medication interface
+, mi as
+(
+  select p.patientunitstayid
+  , max(norepinephrine) as norepinephrine
+  , max(epinephrine) as epinephrine
+  , max(dopamine) as dopamine
+  , max(dobutamine) as dobutamine
+  , max(phenylephrine) as phenylephrine
+  , max(vasopressin) as vasopressin
+  , max(milrinone) as milrinone
+  from pivoted_med p
+  INNER JOIN mp_cohort co
+    ON  p.patientunitstayid = co.patientunitstayid
+    and p.chartoffset >  co.admittime + (-1*60)
+    and p.chartoffset <= co.admittime + (24*60)
+  group by p.patientunitstayid
+)
+-- day 1 for infusions
+, inf as
+(
+  select p.patientunitstayid
+  , max(norepinephrine) as norepinephrine
+  , max(epinephrine) as epinephrine
+  , max(dopamine) as dopamine
+  , max(dobutamine) as dobutamine
+  , max(phenylephrine) as phenylephrine
+  , max(vasopressin) as vasopressin
+  , max(milrinone) as milrinone
+  from pivoted_infusion p
+  INNER JOIN mp_cohort co
+    ON  p.patientunitstayid = co.patientunitstayid
+    and p.chartoffset >  co.admittime + (-1*60)
+    and p.chartoffset <= co.admittime + (24*60)
+  group by p.patientunitstayid
+)
+-- combine medication + infusion tables
+, med as
+(
+  select
+      pat.patientunitstayid
+    , GREATEST(mi.norepinephrine, inf.norepinephrine) as norepinephrine_day1
+    , GREATEST(mi.epinephrine, inf.epinephrine) as epinephrine_day1
+    , GREATEST(mi.dopamine, inf.dopamine) as dopamine_day1
+    , GREATEST(mi.dobutamine, inf.dobutamine) as dobutamine_day1
+    , GREATEST(mi.phenylephrine, inf.phenylephrine) as phenylephrine_day1
+    , GREATEST(mi.vasopressin, inf.vasopressin) as vasopressin_day1
+    , GREATEST(mi.milrinone, inf.milrinone) as milrinone_day1
+  from patient pat
+  left join mi
+    on pat.patientunitstayid = mi.patientunitstayid
+  left join inf
+    on pat.patientunitstayid = inf.patientunitstayid
+)
+-- get vital signs
+, vi as
+(
+  select p.patientunitstayid
+  , min(heartrate) as heartrate_min_day1
+  , max(heartrate) as heartrate_max_day1
+  , min(map) as map_min_day1
+  , max(map) as map_max_day1
+  , min(temperature) as temperature_min_day1
+  , max(temperature) as temperature_max_day1
+  , min(o2saturation) as spo2_min_day1
+  , max(o2saturation) as spo2_max_day1
+  from pivoted_vital p
+  INNER JOIN mp_cohort co
+    ON  p.patientunitstayid = co.patientunitstayid
+    and p.chartoffset >  co.admittime + (-1*60)
+    and p.chartoffset <= co.admittime + (24*60)
+  WHERE heartrate IS NOT NULL
+  OR map IS NOT NULL
+  OR temperature IS NOT NULL
+  OR o2saturation IS NOT NULL
+  group by p.patientunitstayid
+)
+-- calculate SOFA
+, sf as
 (
   SELECT
     pt.patientunitstayid
@@ -73,11 +168,11 @@ with sf as
         else 0
       end as sofa_renal
   from patient pt
-  left join mp_labs la
+  left join la
     on pt.patientunitstayid = la.patientunitstayid
-  left join mp_meds med
+  left join med
     on pt.patientunitstayid = med.patientunitstayid
-  left join mp_vitals vi
+  left join vi
     on pt.patientunitstayid = vi.patientunitstayid
   left join apacheapsvar aav
     on pt.patientunitstayid = aav.patientunitstayid

@@ -1,8 +1,16 @@
 -- Extracts chronic respiratory impairment and COPD
 DROP TABLE IF EXISTS mp_respfailure CASCADE;
 CREATE TABLE mp_respfailure as
+with co as
+(
+  -- define the start time for data extraction
+  select
+    patientunitstayid
+    , starttime as unitadmitoffset
+  from mp_cohort
+)
 -- apache admission diagnosis
-with rf1 as
+, rf1 as
 (
   select
     patientunitstayid
@@ -14,7 +22,7 @@ with rf1 as
 , rf2 as
 (
   select
-    patientunitstayid
+    dx.patientunitstayid
     , max(case
         when diagnosisstring like 'pulmonary|disorders of the airways|COPD%' then 1
         when diagnosisstring like 'pulmonary|disorders of the airways|acute COPD%' then 1
@@ -31,15 +39,17 @@ with rf1 as
         when diagnosisstring = 'surgery|respiratory failure|acute respiratory distress' then 1
         when diagnosisstring like 'surgery|respiratory failure|ARDS%' then 1
       else 0 end) as ards_dx
-  from diagnosis
-  where diagnosisoffset >= -60 and diagnosisoffset < 60*24
-  group by patientunitstayid
+  from diagnosis dx
+  INNER JOIN co
+    ON dx.patientunitstayid = co.patientunitstayid
+  where dx.diagnosisoffset <= co.starttime + (48*60)
+  group by dx.patientunitstayid
 )
 -- past history
 , rf3 as
 (
   select
-    patientunitstayid
+    ph.patientunitstayid
     , max(case when pasthistorypath in
     (
          'notes/Progress Notes/Past History/Organ Systems/Pulmonary/Asthma/asthma'
@@ -93,8 +103,11 @@ with rf1 as
        , 'notes/Progress Notes/Past History/Organ Systems/Pulmonary/COPD/COPD  - severe'
 
     ) then 1 else 0 end) as copd_pasthistory
-  from pasthistory
-  group by patientunitstayid
+  from pasthistory ph
+  INNER JOIN co
+    ON ph.patientunitstayid = co.patientunitstayid
+  where ph.diagnosisoffset <= co.starttime + (48*60)
+  group by ph.patientunitstayid
 )
 -- group together all the respiratory failures
 select

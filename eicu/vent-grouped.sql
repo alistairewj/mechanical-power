@@ -2,12 +2,11 @@ DROP TABLE IF EXISTS public.mp_vent_grouped CASCADE;
 CREATE TABLE public.mp_vent_grouped as
 with co as
 (
-  -- define the admission time
-  -- 0 means use the administrative admission time
+  -- define the start time for data extraction
   select
     patientunitstayid
-    , 0 as unitadmitoffset
-  from patient
+    , starttime as unitadmitoffset
+  from mp_cohort
 )
 , vs as
 (
@@ -37,7 +36,26 @@ with co as
     ON  p.patientunitstayid = co.patientunitstayid
     and p.chartoffset >  co.unitadmitoffset
     and p.chartoffset <= co.unitadmitoffset + (48*60)
-  WHERE coalesce(tidalvolumeobserved,tidalvolumeestimated,tidalvolume,tidalvolumeset,tidalvolumespontaneous) IS NOT NULL
+  WHERE coalesce
+  (
+    meanairwaypressure
+  , peakpressure
+  , peakflow
+  , plateaupressure
+  , pressuresupportpressure
+  , pressurecontrolpressure
+  , rsbi
+  , peep
+  , tidalvolumeobserved
+  , tidalvolumeestimated
+  , tidalvolume
+  , tidalvolumeset
+  , tidalvolumespontaneous
+  , fio2
+  , respiratoryrate
+  , respiratoryrateset
+  , respiratoryratespontaneous
+  ) IS NOT NULL
 )
 select vs.patientunitstayid
   , vs.block
