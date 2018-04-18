@@ -27,9 +27,9 @@ select
   , de.age
   , de.ethnicity
 
-  , de.admissionheight -- height in cm
-  , de.admissionweight -- weight in kg
-  , wt.weight as chartedweight -- weight in kg
+  , htwt.height -- height in cm
+  , htwt.weight -- weight in kg
+  , htwt.chartedweight -- weight in kg
 
   -- source of admission
   , de.hospital_admit_source
@@ -273,8 +273,8 @@ left join mp_meds med
   on pt.patientunitstayid = med.patientunitstayid
 left join mp_vent v
   on pt.patientunitstayid = v.patientunitstayid
-left join mp_weight wt
-  on pt.patientunitstayid = wt.patientunitstayid
+left join mp_htwt htwt
+  on pt.patientunitstayid = htwt.patientunitstayid
 left join mp_sofa sf
   on pt.patientunitstayid = sf.patientunitstayid
 left join mp_respfailure rf
