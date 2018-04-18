@@ -1,14 +1,6 @@
 -- code status in first 48 hours
 DROP TABLE IF EXISTS mp_codestatus CASCADE;
 CREATE TABLE mp_codestatus AS
-with co as
-(
-  -- define the start time for data extraction
-  select
-    patientunitstayid
-    , startoffset as unitadmitoffset
-  from mp_cohort
-)
 select
   co.patientunitstayid
   , MAX(CASE
@@ -34,12 +26,12 @@ select
     WHEN cplitemvalue IS NOT NULL THEN 0
     ELSE NULL
   END) AS FullCode
-from co
+from mp_cohort co
 LEFT JOIN careplangeneral cpg
   ON co.patientunitstayid = cpg.patientunitstayid
   AND cpg.cplgroup = 'Care Limitation'
   AND cpg.cplitemvalue IS NOT NULL
   AND cpg.cplitemoffset >  (-1*60)
-  AND cpg.cplitemoffset <= co.starttime + (48*60)
-GROUP BY pt.patientunitstayid
-ORDER BY pt.patientunitstayid
+  AND cpg.cplitemoffset <= co.startoffset + (48*60)
+GROUP BY co.patientunitstayid
+ORDER BY co.patientunitstayid
