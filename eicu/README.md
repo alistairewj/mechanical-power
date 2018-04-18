@@ -8,12 +8,19 @@ Afterwards, run:
 \i hospitals-with-vent-data.sql
 \i cohort.sql
 \i demographics.sql
-\i weight.sql
+\i height-weight.sql
+-- these tables extract data from vent start to vent start + 48 hr
 \i during-vent/bg-daily.sql
 \i during-vent/labs-daily.sql
 \i during-vent/meds-daily.sql
 \i during-vent/vitals-daily.sql
 \i during-vent/vent-daily.sql
+-- other queries
+\i sofa.sql
+\i oasis.sql
+\i resp-failure.sql
+\i charlson.sql
+\i code-status.sql
 \i data.sql
 ```
 
@@ -52,4 +59,22 @@ SELECT
           , exclusion_no_peak_pressure) = 0 THEN hospitalid ELSE NULL END
         ) as num_hospitals_considered
 FROM mp_cohort;
+```
+
+Extract data for only non-excluded patients:
+
+```sql
+\copy (select * from mp_data where patientunitstayid in (select patientunitstayid from mp_cohort where GREATEST(exclusion_non_adult, exclusion_secondary_hospital_stay, exclusion_secondary_icu_stay, exclusion_by_apache, exclusion_no_rc_data, exclusion_trach, exclusion_not_vent_48hr, exclusion_no_peak_pressure) = 0) ORDER BY patientunitstayid) to 'eicu-mechanical-power.csv' CSV HEADER;
+```
+
+Extract block data
+
+```sql
+\copy (select * from mp_vent_grouped where patientunitstayid in (select patientunitstayid from mp_cohort where GREATEST(exclusion_non_adult, exclusion_secondary_hospital_stay, exclusion_secondary_icu_stay, exclusion_by_apache, exclusion_no_rc_data, exclusion_trach, exclusion_not_vent_48hr, exclusion_no_peak_pressure) = 0) ORDER BY patientunitstayid, block) to 'eicu-mechanical-power-vent-grouped.csv' CSV HEADER;
+```
+
+Extract duration data
+
+```sql
+\copy (select * from ventdurations where ventseq = 1 and patientunitstayid in (select patientunitstayid from mp_cohort where GREATEST(exclusion_non_adult, exclusion_secondary_hospital_stay, exclusion_secondary_icu_stay, exclusion_by_apache, exclusion_no_rc_data, exclusion_trach, exclusion_not_vent_48hr, exclusion_no_peak_pressure) = 0) ORDER BY patientunitstayid) to 'eicu-vent-durations.csv' CSV HEADER;
 ```
