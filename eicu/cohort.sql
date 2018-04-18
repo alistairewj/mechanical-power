@@ -76,6 +76,8 @@ select vw1.patientunitstayid
       when aiva.predictedhospitalmortality::NUMERIC > 0 then 0
     else 1 end as exclusion_by_apache
 , case when st.patientunitstayid IS NULL THEN 1 ELSE 0 END as exclusion_no_rc_data
+-- ventilated at least 48 hours
+, case when vd.ventilation_minutes >= 2880 THEN 0 ELSE 1 END as exclusion_not_vent_48hr
 from vw1
 -- check for apache values
 left join (select patientunitstayid, apachescore, predictedhospitalmortality from APACHEPATIENTRESULT where apacheversion = 'IVa') aiva
@@ -84,4 +86,7 @@ left join st
   on vw1.patientunitstayid = st.patientunitstayid
 left join adm
   on vw1.patientunitstayid = adm.patientunitstayid
+left join ventdurations vd
+  on vw1.patientunitstayid = vd.patientunitstayid
+  and vd.ventseq = 1
 order by vw1.patientunitstayid;
