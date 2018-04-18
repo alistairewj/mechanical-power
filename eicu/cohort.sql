@@ -63,6 +63,15 @@ with pt as
   from ventdurations p
   GROUP BY patientunitstayid
 )
+-- get trach status from vent events, which sources care plan // treatment tables
+, ve as
+(
+  SELECT
+    patientunitstayid, min(chartoffset) as trachoffset
+  FROM ventevents ve
+  WHERE trach = 1
+  group by patientunitstayid
+)
 select vw1.patientunitstayid
 , vw1.hospitalid
 -- starttime is the start time of mechanical ventilation
@@ -76,6 +85,8 @@ select vw1.patientunitstayid
       when aiva.predictedhospitalmortality::NUMERIC > 0 then 0
     else 1 end as exclusion_by_apache
 , case when st.patientunitstayid IS NULL THEN 1 ELSE 0 END as exclusion_no_rc_data
+-- not trach
+, case when ve.trachoffset <= st.startoffset THEN 1 ELSE 0 END AS exclusion_trach
 -- ventilated at least 48 hours
 , case when vd.ventilation_minutes >= 2880 THEN 0 ELSE 1 END as exclusion_not_vent_48hr
 from vw1
@@ -89,4 +100,6 @@ left join adm
 left join ventdurations vd
   on vw1.patientunitstayid = vd.patientunitstayid
   and vd.ventseq = 1
+left join ve
+  on vw1.patientunitstayid = ve.patientunitstayid
 order by vw1.patientunitstayid;
