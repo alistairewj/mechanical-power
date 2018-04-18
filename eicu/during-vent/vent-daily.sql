@@ -1,7 +1,113 @@
 DROP TABLE IF EXISTS public.mp_vent CASCADE;
 CREATE TABLE public.mp_vent as
+-- convert vent settings into numeric
+with vs as
+(
+  select p.patientunitstayid
+  , p.chartoffset
+  , CASE
+    -- data is not numeric
+    WHEN meanairwaypressure in ('-','.') THEN NULL
+    WHEN NOT meanairwaypressure ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+    WHEN meanairwaypressure::numeric < 0 THEN NULL
+    ELSE meanairwaypressure::numeric end as meanairwaypressure
+  , CASE
+    -- data is not numeric
+    WHEN peakpressure in ('-','.') THEN NULL
+    WHEN NOT peakpressure ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+    WHEN peakpressure::numeric < 0 THEN NULL
+    ELSE peakpressure::numeric end as peakpressure
+  , CASE
+    -- data is not numeric
+    WHEN plateaupressure in ('-','.') THEN NULL
+    WHEN NOT plateaupressure ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+    WHEN plateaupressure::numeric < 0 THEN NULL
+    ELSE plateaupressure::numeric end as plateaupressure
+  , CASE
+    -- data is not numeric
+    WHEN peep in ('-','.') THEN NULL
+    WHEN NOT peep ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+    WHEN peep::numeric < 0 THEN NULL
+    ELSE peep::numeric end as peep
+  , CASE
+      -- data is not numeric
+      WHEN tidalvolumeobserved in ('-','.') THEN NULL
+      WHEN NOT tidalvolumeobserved ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+      -- filter out fractional numbers
+      WHEN tidalvolumeobserved::numeric <= 1 THEN NULL
+      WHEN tidalvolumeobserved::numeric < 30 THEN tidalvolumeobserved::numeric*htwt.ibw
+    ELSE tidalvolumeobserved::numeric end as tidalvolumeobserved
+  , CASE
+      -- data is not numeric
+      WHEN tidalvolume in ('-','.') THEN NULL
+      WHEN NOT tidalvolume ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+      -- filter out fractional numbers
+      WHEN tidalvolume::numeric <= 1 THEN NULL
+      WHEN tidalvolume::numeric < 30 THEN tidalvolume::numeric*htwt.ibw
+    ELSE tidalvolume::numeric end as tidalvolume
+  , CASE
+      -- data is not numeric
+      WHEN tidalvolumeestimated in ('-','.') THEN NULL
+      WHEN NOT tidalvolumeestimated ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+      -- filter out fractional numbers
+      WHEN tidalvolumeestimated::numeric <= 1 THEN NULL
+      WHEN tidalvolumeestimated::numeric < 30 THEN tidalvolumeestimated::numeric*htwt.ibw
+    ELSE tidalvolumeestimated::numeric end as tidalvolumeestimated
+  , CASE
+      -- data is not numeric
+      WHEN tidalvolumeset in ('-','.') THEN NULL
+      WHEN NOT tidalvolumeset ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+      -- filter out fractional numbers
+      WHEN tidalvolumeset::numeric <= 1 THEN NULL
+      WHEN tidalvolumeset::numeric < 30 THEN tidalvolumeset::numeric*htwt.ibw
+    ELSE tidalvolumeset::numeric end as tidalvolumeset
+  , CASE
+      -- data is not numeric
+      WHEN tidalvolumespontaneous in ('-','.') THEN NULL
+      WHEN NOT tidalvolumespontaneous ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+      -- filter out fractional numbers
+      WHEN tidalvolumespontaneous::numeric <= 1 THEN NULL
+      WHEN tidalvolumespontaneous::numeric < 30 THEN tidalvolumespontaneous::numeric*htwt.ibw
+    ELSE tidalvolumespontaneous::numeric end as tidalvolumespontaneous
+  , CASE
+      WHEN fio2 in ('-','.') THEN NULL
+      WHEN NOT fio2 ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+      WHEN fio2::numeric <=   0.2 THEN NULL
+      WHEN fio2::numeric <=   1.0 THEN fio2::numeric*100.0
+      WHEN fio2::numeric <=  20.0 THEN NULL
+      WHEN fio2::numeric <= 100.0 THEN fio2::numeric
+    ELSE NULL END AS fio2
+  , CASE
+    -- data is not numeric
+    WHEN respiratoryrate in ('-','.') THEN NULL
+    WHEN NOT respiratoryrate ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+    WHEN respiratoryrate::numeric < 0 THEN NULL
+    ELSE respiratoryrate::numeric end as respiratoryrate
+  , CASE
+    -- data is not numeric
+    WHEN respiratoryrateset in ('-','.') THEN NULL
+    WHEN NOT respiratoryrateset ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+    WHEN respiratoryrateset::numeric < 0 THEN NULL
+    ELSE respiratoryrateset::numeric end as respiratoryrateset
+  , CASE
+    -- data is not numeric
+    WHEN respiratoryratespontaneous in ('-','.') THEN NULL
+    WHEN NOT respiratoryratespontaneous ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+    WHEN respiratoryratespontaneous::numeric < 0 THEN NULL
+    ELSE respiratoryratespontaneous::numeric end as respiratoryratespontaneous
+  , CASE
+    -- data is not numeric
+    WHEN rsbi in ('-','.') THEN NULL
+    WHEN NOT rsbi ~ '^[-]?[0-9]+[.]?[0-9]*$' THEN NULL
+    WHEN rsbi::numeric < 0 THEN NULL
+    ELSE rsbi::numeric end as rsbi
+  from vent_unpivot_rc p
+  -- get IBW from htwt table
+  INNER JOIN mp_htwt htwt
+    ON p.patientunitstayid = htwt.patientunitstayid
+)
 -- day 1
-with vw1 as
+, vw1 as
 (
   select p.patientunitstayid
       , min(meanairwaypressure) as meanairwaypressure_min
@@ -29,12 +135,11 @@ with vw1 as
       , max(respiratoryrate) as respiratoryrate_max
       , max(respiratoryrateset) as respiratoryrateset_max
       , max(respiratoryratespontaneous) as respiratoryratespontaneous_max
-  from vent_unpivot_rc p
+  from vs p
   INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
     and p.chartoffset >  co.startoffset + (-1*60)
     and p.chartoffset <= co.startoffset + (24*60)
-  WHERE coalesce(tidalvolumeobserved,tidalvolumeestimated,tidalvolume,tidalvolumeset,tidalvolumespontaneous) IS NOT NULL
   group by p.patientunitstayid
 )
 -- day 2
@@ -66,12 +171,11 @@ with vw1 as
       , max(respiratoryrate) as respiratoryrate_max
       , max(respiratoryrateset) as respiratoryrateset_max
       , max(respiratoryratespontaneous) as respiratoryratespontaneous_max
-  from vent_unpivot_rc p
+  from vs p
   INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
     and p.chartoffset >  co.startoffset + (24*60)
     and p.chartoffset <= co.startoffset + (48*60)
-  WHERE coalesce(tidalvolumeobserved,tidalvolumeestimated,tidalvolume,tidalvolumeset,tidalvolumespontaneous) IS NOT NULL
   group by p.patientunitstayid
 )
 select
