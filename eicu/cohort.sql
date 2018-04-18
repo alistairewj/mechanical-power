@@ -89,6 +89,8 @@ select vw1.patientunitstayid
 , case when ve.trachoffset <= st.startoffset THEN 1 ELSE 0 END AS exclusion_trach
 -- ventilated at least 48 hours
 , case when vd.ventilation_minutes >= 2880 THEN 0 ELSE 1 END as exclusion_not_vent_48hr
+-- hospital must routinely document peak pressure
+, case when ho.hospitalid is not null then 0 else 1 end as exclusion_no_peak_pressure
 from vw1
 -- check for apache values
 left join (select patientunitstayid, apachescore, predictedhospitalmortality from APACHEPATIENTRESULT where apacheversion = 'IVa') aiva
@@ -102,4 +104,6 @@ left join ventdurations vd
   and vd.ventseq = 1
 left join ve
   on vw1.patientunitstayid = ve.patientunitstayid
+left join mp_hospitals_with_vent_data ho
+  on vw1.hospitalid = ho.hospitalid
 order by vw1.patientunitstayid;
