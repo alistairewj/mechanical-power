@@ -77,8 +77,8 @@ with la as
   select p.patientunitstayid
   , min(heartrate) as heartrate_min_day1
   , max(heartrate) as heartrate_max_day1
-  , min(map) as map_min_day1
-  , max(map) as map_max_day1
+  , min(coalesce(map,ibp_mean,nibp_mean)) as map_min_day1
+  , max(coalesce(map,ibp_mean,nibp_mean)) as map_max_day1
   , min(temperature) as temperature_min_day1
   , max(temperature) as temperature_max_day1
   , min(o2saturation) as spo2_min_day1

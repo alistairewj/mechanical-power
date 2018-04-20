@@ -6,8 +6,8 @@ with vw1 as
   select p.patientunitstayid
   , min(heartrate) as heartrate_min
   , max(heartrate) as heartrate_max
-  , min(map) as map_min
-  , max(map) as map_max
+  , min(coalesce(map,ibp_mean,nibp_mean)) as map_min
+  , max(coalesce(map,ibp_mean,nibp_mean)) as map_max
   , min(temperature) as temperature_min
   , max(temperature) as temperature_max
   , min(o2saturation) as spo2_min
@@ -29,8 +29,8 @@ with vw1 as
   select p.patientunitstayid
   , min(heartrate) as heartrate_min
   , max(heartrate) as heartrate_max
-  , min(map) as map_min
-  , max(map) as map_max
+  , min(coalesce(map,ibp_mean,nibp_mean)) as map_min
+  , max(coalesce(map,ibp_mean,nibp_mean)) as map_max
   , min(temperature) as temperature_min
   , max(temperature) as temperature_max
   , min(o2saturation) as spo2_min
