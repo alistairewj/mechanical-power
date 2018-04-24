@@ -1,2 +1,3 @@
-# mimic-mechanical-power
-Study on mechanical power in MIMIC-III
+# mechanical-power
+
+Study on mechanical power in MIMIC-III and eICU-CRD.
