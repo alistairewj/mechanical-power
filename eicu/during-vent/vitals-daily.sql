@@ -6,21 +6,22 @@ with vw1 as
   select p.patientunitstayid
   , min(heartrate) as heartrate_min
   , max(heartrate) as heartrate_max
-  , min(coalesce(map,ibp_mean,nibp_mean)) as map_min
-  , max(coalesce(map,ibp_mean,nibp_mean)) as map_max
+  , min(coalesce(ibp_mean,nibp_mean)) as map_min
+  , max(coalesce(ibp_mean,nibp_mean)) as map_max
   , min(temperature) as temperature_min
   , max(temperature) as temperature_max
-  , min(o2saturation) as spo2_min
-  , max(o2saturation) as spo2_max
+  , min(spo2) as spo2_min
+  , max(spo2) as spo2_max
   from pivoted_vital p
   INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
     and p.chartoffset >  co.startoffset + (-1*60)
     and p.chartoffset <= co.startoffset + (24*60)
   WHERE heartrate IS NOT NULL
-  OR map IS NOT NULL
+  OR ibp_mean IS NOT NULL
+  OR nibp_mean IS NOT NULL
   OR temperature IS NOT NULL
-  OR o2saturation IS NOT NULL
+  OR spo2 IS NOT NULL
   group by p.patientunitstayid
 )
 -- day 2
@@ -29,21 +30,22 @@ with vw1 as
   select p.patientunitstayid
   , min(heartrate) as heartrate_min
   , max(heartrate) as heartrate_max
-  , min(coalesce(map,ibp_mean,nibp_mean)) as map_min
-  , max(coalesce(map,ibp_mean,nibp_mean)) as map_max
+  , min(coalesce(ibp_mean,nibp_mean)) as map_min
+  , max(coalesce(ibp_mean,nibp_mean)) as map_max
   , min(temperature) as temperature_min
   , max(temperature) as temperature_max
-  , min(o2saturation) as spo2_min
-  , max(o2saturation) as spo2_max
+  , min(spo2) as spo2_min
+  , max(spo2) as spo2_max
   from pivoted_vital p
   INNER JOIN mp_cohort co
     ON  p.patientunitstayid = co.patientunitstayid
     and p.chartoffset >  co.startoffset + (24*60)
     and p.chartoffset <= co.startoffset + (48*60)
   WHERE heartrate IS NOT NULL
-  OR map IS NOT NULL
+  OR ibp_mean IS NOT NULL
+  OR nibp_mean IS NOT NULL
   OR temperature IS NOT NULL
-  OR o2saturation IS NOT NULL
+  OR spo2 IS NOT NULL
   group by p.patientunitstayid
 )
 select

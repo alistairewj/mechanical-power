@@ -1,10 +1,38 @@
-See eicu-sepsis-prompt for queries to get pivoted tables.
-See eicu-northwell for ventilation queries.
+Run pivot queries:
+
+```sql
+\i ../eicu-code/concepts/pivoted/pivoted-bg.sql
+\i ../eicu-code/concepts/pivoted/pivoted-infusion.sql
+\i ../eicu-code/concepts/pivoted/pivoted-lab.sql
+\i ../eicu-code/concepts/pivoted/pivoted-med.sql
+\i ../eicu-code/concepts/pivoted/pivoted-o2.sql
+\i ../eicu-code/concepts/pivoted/pivoted-score.sql
+\i ../eicu-code/concepts/pivoted/pivoted-treatment-vasopressor.sql
+\i ../eicu-code/concepts/pivoted/pivoted-uo.sql
+\i ../eicu-code/concepts/pivoted/pivoted-vital-other.sql
+\i ../eicu-code/concepts/pivoted/pivoted-vital.sql
+\i ../eicu-code/concepts/neuroblock.sql
+```
+
+Run ventilation queries:
+
+```sql
+\cd ../eicu-northwell/vent
+\i pivoted-vent-rc.sql
+\i pivoted-vent-nc.sql
+\i load-labels-od.sql
+\i load-labels-vm.sql
+\cd ../ventduration
+\i vent-events.sql
+\i ventilation-durations.sql
+\cd ../../mechanical-power/eicu
+```
+
+Above generates the needed `ventevents` and `ventdurations` tables.
 
 Afterwards, run:
 
 ```sql
-\i vent-durations.sql
 \i hospitals-with-vent-data.sql
 \i cohort.sql
 \i demographics.sql
@@ -15,6 +43,7 @@ Afterwards, run:
 \i during-vent/meds-daily.sql
 \i during-vent/vitals-daily.sql
 \i during-vent/vent-daily.sql
+\i during-vent/neuroblock-daily.sql
 -- other queries
 \i sofa.sql
 \i oasis.sql

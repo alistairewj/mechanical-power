@@ -15,7 +15,7 @@ with pt as
   , pt.uniquepid
   , pt.hospitalid
   , hospitaladmitoffset
-  , hospitaladmityear, hospitaldischargeyear
+  , hospitaldischargeyear
   , case when pt.age = '' then null
       else REPLACE(age, '>','')
     end::INT as age
@@ -32,7 +32,7 @@ with pt as
     (
       PARTITION BY uniquepid
       ORDER BY
-        hospitaladmityear, hospitaldischargeyear
+        hospitaldischargeyear
       , age
       , patienthealthsystemstayid -- this is temporally random but deterministic
       , hospitaladmitoffset

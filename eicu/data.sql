@@ -187,6 +187,10 @@ select
     , med.vasopressin_day1
     , med.milrinone_day1) as vasopressor_day1
 
+  -- only trustworthy for some hospitals, see analysis folder
+  , nb.neuroblock_day1
+  , nb.neuroblock_day2
+
   -- VENT DATA
   , v.meanairwaypressure_min_day1
   , v.peakpressure_min_day1
@@ -272,4 +276,6 @@ left join mp_oasis oa
 left join mp_charlson ch
   on pt.patientunitstayid = ch.patientunitstayid
 left join mp_codestatus cs
-  on pt.patientunitstayid = cs.patientunitstayid;
+  on pt.patientunitstayid = cs.patientunitstayid
+left join mp_neuroblock nb
+  on pt.patientunitstayid = nb.patientunitstayid;
